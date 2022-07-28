@@ -1,0 +1,10 @@
+_ReSharper.*/
+*.sdf
+bin/
+obj/
+Debug/...
+*.pdb
+.vs/
+/Release/*
+/FXCommands/bin/Debug
+/FXCommands/bin/Release
