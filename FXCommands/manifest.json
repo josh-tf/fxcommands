@@ -1,0 +1,58 @@
+{
+  "Actions": [
+    {
+      "Icon": "Images/icon",
+      "Name": "Run Command",
+      "States": [
+        {
+          "Image": "Images/pluginAction0",
+          "TitleAlignment": "middle",
+          "FontSize": "12"
+        },
+        {
+          "Image": "Images/pluginAction1",
+          "TitleAlignment": "middle",
+          "FontSize": "12"
+        },
+        {
+          "Image": "Images/pluginAction2",
+          "TitleAlignment": "middle",
+          "FontSize": "12"
+        },
+        {
+          "Image": "Images/pluginAction3",
+          "TitleAlignment": "middle",
+          "FontSize": "12"
+        },
+        {
+          "Image": "Images/pluginAction4",
+          "TitleAlignment": "middle",
+          "FontSize": "12"
+        }
+      ],
+      "SupportedInMultiActions": true,
+      "Tooltip": "Send commands to a FiveM server",
+      "UUID": "com.egg-rp.fxcommands",
+      "PropertyInspectorPath": "PropertyInspector/PluginActionPI.html"
+    }
+  ],
+  "Author": "ukiyo#0001",
+  "Name": "FxCommands",
+  "Description": "Send Commands to a FiveM server",
+  "Icon": "Images/pluginIcon",
+  "URL": "https://github.com/EggRP/fxcommands",
+  "Version": "1.0",
+  "CodePath": "com.egg-rp.fxcommands",
+  "Category": "FiveM Commands",
+  "CategoryIcon": "Images/categoryIcon",
+  "OS": [
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "SDKVersion": 2,
+  "Software": {
+    "MinimumVersion": "4.3"
+  }
+}
