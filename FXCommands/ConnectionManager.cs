@@ -20,16 +20,16 @@ namespace FXCommands
             int port = 29200; // fx console
 
             byte[] b_header = "43:4d:4e:44".Split(':').Select(s => byte.Parse(s, System.Globalization.NumberStyles.HexNumber)).ToArray(); // CMND
-            byte[] b_nog = "00:d2:00:00:00".Split(':').Select(s => byte.Parse(s, System.Globalization.NumberStyles.HexNumber)).ToArray(); // 0x00d20000
+            byte[] b_nog = "00:d2:00:00".Split(':').Select(s => byte.Parse(s, System.Globalization.NumberStyles.HexNumber)).ToArray(); // 0x00d20000
             byte[] b_command = Encoding.ASCII.GetBytes(message);
             byte[] b_padding = {
-        00,
-        00
-      };
-            byte[] b_length = BitConverter.GetBytes(message.Length + 12 + 1);
+                00,
+                00
+            };
+            byte[] b_length = BitConverter.GetBytes((message.Length + 12 + 1));
             byte[] b_terminator = {
-        00
-      };
+                00
+            };
 
             Array.Reverse(b_length); // flip flop
 
