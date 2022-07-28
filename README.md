@@ -2,7 +2,7 @@
 
 # FXCommands
 
-Stream Deck plugin for sending commands to the FiveM server console
+Stream Deck plugin for sending commands to the FiveM client console
 
 # Getting Started
 
