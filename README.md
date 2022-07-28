@@ -1,4 +1,4 @@
-![FXCommands by EggRP](https://i.imgur.com/El3AiAZ.png 'FXCommands')
+![FXCommands by EggRP](https://i.imgur.com/Uk1afn1.png 'FXCommands')
 
 # FXCommands
 
@@ -11,7 +11,7 @@ Stream Deck plugin for sending commands to the FiveM server console
 
 # Usage
 
-You can view the getting started tutorial [here](https://google.com)
+You can view the getting started tutorial (coming soon)
 
 Simply drag the action to your Stream Deck and fill in the command to be executed, you can chose to have a command executed when pressed or when released (or even both)
 
