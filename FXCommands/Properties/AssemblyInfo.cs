@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("streamdeck-fxcommands")]
-[assembly: AssemblyDescription("Send commands to a FiveM server")]
+[assembly: AssemblyDescription("Send commands to a local FiveM client")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("EggRP")]
 [assembly: AssemblyProduct("streamdeck-fxcommands")]

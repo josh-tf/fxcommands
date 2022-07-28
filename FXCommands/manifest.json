@@ -31,14 +31,14 @@
         }
       ],
       "SupportedInMultiActions": true,
-      "Tooltip": "Send commands to a FiveM server",
+      "Tooltip": "Send commands to a local FiveM client",
       "UUID": "com.egg-rp.fxcommands",
       "PropertyInspectorPath": "PropertyInspector/PluginActionPI.html"
     }
   ],
   "Author": "ukiyo#0001",
   "Name": "FxCommands",
-  "Description": "Send Commands to a FiveM server",
+  "Description": "Send commands to a local FiveM client",
   "Icon": "Images/pluginIcon",
   "URL": "https://github.com/EggRP/fxcommands",
   "Version": "1.0",
