@@ -6,7 +6,7 @@ Stream Deck plugin for sending commands to the FiveM server console
 
 # Getting Started
 
-- Download the Stream Deck plugin from the releases section [here](https://google.com)
+- Download the Stream Deck plugin from the releases section [here](https://github.com/EggRP/fxcommands/releases/)
 - Run the file and accept the Stream Deck install prompt
 
 # Usage
