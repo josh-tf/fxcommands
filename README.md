@@ -6,6 +6,9 @@ Stream Deck plugin for sending commands to the FiveM client console
 
 # Getting Started
 
+Now available on the Stream Deck store: https://apps.elgato.com/plugins/com.egg-rp.fxcommands
+
+Alternatively,
 - Download the Stream Deck plugin from the releases section [here](https://github.com/EggRP/fxcommands/releases/)
 - Run the file and accept the Stream Deck install prompt
 
