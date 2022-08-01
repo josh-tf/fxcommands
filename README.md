@@ -14,7 +14,7 @@ Alternatively,
 
 # Usage
 
-You can view the getting started tutorial (coming soon)
+You can view the getting started tutorial and video [here](https://egg-rp.com/streamdeck/)
 
 Simply drag the action to your Stream Deck and fill in the command to be executed, you can chose to have a command executed when pressed or when released (or even both)
 
