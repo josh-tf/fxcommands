@@ -4,6 +4,8 @@
 
 Stream Deck plugin for sending commands to the FiveM client console
 
+This plugin works with a phisicial Stream Deck as well as the Stream Deck iOS and Android applications, if you don't own the hardware you can use your phone or tablet as a Stream Deck.
+
 # Getting Started
 
 Now available on the Stream Deck store: https://apps.elgato.com/plugins/com.egg-rp.fxcommands
