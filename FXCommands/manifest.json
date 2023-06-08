@@ -36,12 +36,12 @@
       "PropertyInspectorPath": "PropertyInspector/PluginActionPI.html"
     }
   ],
-  "Author": "ukiyo#0001",
+  "Author": "josh-tf",
   "Name": "FxCommands",
   "Description": "Send commands to a local FiveM client",
   "Icon": "Images/pluginIcon",
   "URL": "https://github.com/EggRP/fxcommands",
-  "Version": "1.0",
+  "Version": "1.1",
   "CodePath": "com.egg-rp.fxcommands",
   "Category": "FiveM Commands",
   "CategoryIcon": "Images/categoryIcon",
