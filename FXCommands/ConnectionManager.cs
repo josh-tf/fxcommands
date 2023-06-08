@@ -20,7 +20,7 @@ namespace FXCommands
             int port = 29200; // fx console
 
             byte[] b_header = "43:4d:4e:44:00:d2:00:00".Split(':').Select(s => byte.Parse(s, System.Globalization.NumberStyles.HexNumber)).ToArray(); // CMND 0x00d20000
-            byte[] b_command = Encoding.ASCII.GetBytes(message + "\n");
+            byte[] b_command = Encoding.UTF8.GetBytes(message + "\n");
             byte[] b_padding = {
                 0,
                 0
