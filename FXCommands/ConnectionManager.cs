@@ -19,21 +19,20 @@ namespace FXCommands
             string ipAddress = "127.0.0.1";
             int port = 29200; // fx console
 
-            byte[] b_header = "43:4d:4e:44".Split(':').Select(s => byte.Parse(s, System.Globalization.NumberStyles.HexNumber)).ToArray(); // CMND
-            byte[] b_nog = "00:d2:00:00".Split(':').Select(s => byte.Parse(s, System.Globalization.NumberStyles.HexNumber)).ToArray(); // 0x00d20000
-            byte[] b_command = Encoding.ASCII.GetBytes(message);
+            byte[] b_header = "43:4d:4e:44:00:d2:00:00".Split(':').Select(s => byte.Parse(s, System.Globalization.NumberStyles.HexNumber)).ToArray(); // CMND 0x00d20000
+            byte[] b_command = Encoding.ASCII.GetBytes(message + "\n");
             byte[] b_padding = {
-                00,
-                00
+                0,
+                0
             };
-            byte[] b_length = BitConverter.GetBytes((message.Length + 12 + 1));
+            byte[] b_length = BitConverter.GetBytes((message.Length + 13));
             byte[] b_terminator = {
                 00
             };
 
             Array.Reverse(b_length); // flip flop
 
-            byte[] data = b_header.Concat(b_nog).Concat(b_length).Concat(b_padding).Concat(b_command).Concat(b_terminator).ToArray(); // build message
+            byte[] data = b_header.Concat(b_length).Concat(b_padding).Concat(b_command).Concat(b_terminator).ToArray(); // build message
 
             string tcpClientIdentifier = $"{ipAddress}::{port}";
 
