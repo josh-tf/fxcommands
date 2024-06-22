@@ -8,7 +8,7 @@ This plugin works with a phisicial Stream Deck as well as the Stream Deck iOS an
 
 # Getting Started
 
-Now available on the Stream Deck store: https://apps.elgato.com/plugins/com.egg-rp.fxcommands
+Now available on the Stream Deck store: https://marketplace.elgato.com/product/fxcommands-fivem-a6cdf538-76ac-4fc7-b8b8-130ea2b8bcbb
 
 Alternatively,
 - Download the Stream Deck plugin from the releases section [here](https://github.com/EggRP/fxcommands/releases/)
