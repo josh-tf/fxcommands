@@ -10,29 +10,22 @@ namespace FXCommands
 {
     internal class ConnectionManager
     {
-        private static Dictionary<string,
-        TcpClient> tcpClients = new Dictionary<string,
-        TcpClient>(10);
+        private static Dictionary<string, TcpClient> tcpClients = new Dictionary<string, TcpClient>(10);
 
         public void SendMessage(string message, bool canRetry = true)
         {
             string ipAddress = "127.0.0.1";
             int port = 29200; // fx console
 
-            byte[] b_header = "43:4d:4e:44:00:d2:00:00".Split(':').Select(s => byte.Parse(s, System.Globalization.NumberStyles.HexNumber)).ToArray(); // CMND 0x00d20000
+            byte[] b_header = "43:4d:4e:44:00:d2:00:00".Split(':').Select(s => byte.Parse(s, System.Globalization.NumberStyles.HexNumber)).ToArray();
             byte[] b_command = Encoding.UTF8.GetBytes(message + "\n");
-            byte[] b_padding = {
-                0,
-                0
-            };
+            byte[] b_padding = { 0, 0 };
             byte[] b_length = BitConverter.GetBytes((message.Length + 13));
-            byte[] b_terminator = {
-                00
-            };
+            byte[] b_terminator = { 00 };
 
-            Array.Reverse(b_length); // flip flop
+            Array.Reverse(b_length);
 
-            byte[] data = b_header.Concat(b_length).Concat(b_padding).Concat(b_command).Concat(b_terminator).ToArray(); // build message
+            byte[] data = b_header.Concat(b_length).Concat(b_padding).Concat(b_command).Concat(b_terminator).ToArray();
 
             string tcpClientIdentifier = $"{ipAddress}::{port}";
 
@@ -42,30 +35,20 @@ namespace FXCommands
 
                 if (!tcpClients.ContainsKey(tcpClientIdentifier))
                 {
-                    tcpClients.Add(tcpClientIdentifier, new TcpClient()
-                    {
-                        NoDelay = true
-                    });
+                    tcpClients.Add(tcpClientIdentifier, new TcpClient() { NoDelay = true });
                 }
                 else
                 {
                     IPGlobalProperties ipProperties = IPGlobalProperties.GetIPGlobalProperties();
-                    // Confirm connection is still valid
-                    TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections().Where(x => x.LocalEndPoint.Equals(tcpClients[tcpClientIdentifier].Client.LocalEndPoint) && x.RemoteEndPoint.Equals(tcpClients[tcpClientIdentifier].Client.RemoteEndPoint)).ToArray();
+                    TcpConnectionInformation[] tcpConnections = ipProperties.GetActiveTcpConnections()
+                        .Where(x => x.LocalEndPoint.Equals(tcpClients[tcpClientIdentifier].Client.LocalEndPoint) &&
+                                    x.RemoteEndPoint.Equals(tcpClients[tcpClientIdentifier].Client.RemoteEndPoint))
+                        .ToArray();
 
-                    if (tcpConnections != null && tcpConnections.Length > 0)
+                    if (tcpConnections == null || tcpConnections.Length == 0 || tcpConnections.First().State != TcpState.Established)
                     {
-                        TcpState stateOfConnection = tcpConnections.First().State;
-                        if (stateOfConnection != TcpState.Established)
-                        {
-                            // No active connection, lets create a new one
-                            tcpClients[tcpClientIdentifier].Close();
-                            tcpClients[tcpClientIdentifier].Dispose();
-                            tcpClients[tcpClientIdentifier] = new TcpClient()
-                            {
-                                NoDelay = true
-                            };
-                        }
+                        tcpClients[tcpClientIdentifier].Close();
+                        tcpClients[tcpClientIdentifier] = new TcpClient() { NoDelay = true };
                     }
                 }
 
@@ -79,25 +62,18 @@ namespace FXCommands
                     var tcpStream = tcpClients[tcpClientIdentifier].GetStream();
                     tcpStream.Write(data, 0, data.Length);
                 }
-
             }
             catch (Exception ex)
             {
-                // Catch and reset client if there is a socket issue to prevent button from crashing
                 tcpClients[tcpClientIdentifier].Close();
-                tcpClients[tcpClientIdentifier].Dispose();
-                tcpClients[tcpClientIdentifier] = new TcpClient()
-                {
-                    NoDelay = true
-                };
+                tcpClients[tcpClientIdentifier] = new TcpClient() { NoDelay = true };
                 Console.WriteLine(ex.ToString());
             }
         }
 
         public void InitializeClients()
         {
-            tcpClients = new Dictionary<string,
-            TcpClient>();
+            tcpClients = new Dictionary<string, TcpClient>();
         }
 
         public void Dispose()
