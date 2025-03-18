@@ -7,43 +7,44 @@
         {
           "Image": "Images/pluginAction0",
           "TitleAlignment": "middle",
-          "FontSize": "12"
+          "FontSize": 12
         },
         {
           "Image": "Images/pluginAction1",
           "TitleAlignment": "middle",
-          "FontSize": "12"
+          "FontSize": 12
         },
         {
           "Image": "Images/pluginAction2",
           "TitleAlignment": "middle",
-          "FontSize": "12"
+          "FontSize": 12
         },
         {
           "Image": "Images/pluginAction3",
           "TitleAlignment": "middle",
-          "FontSize": "12"
+          "FontSize": 12
         },
         {
           "Image": "Images/pluginAction4",
           "TitleAlignment": "middle",
-          "FontSize": "12"
+          "FontSize": 12
         }
       ],
       "SupportedInMultiActions": true,
-      "Tooltip": "Send commands to a local FiveM client",
-      "UUID": "com.egg-rp.fxcommands",
+      "UUID": "tf.josh.fxcommands",
+      "Tooltip": "Send commands to a local FiveM or RedM client",
       "PropertyInspectorPath": "PropertyInspector/PluginActionPI.html"
     }
   ],
   "Author": "josh-tf",
   "Name": "FxCommands",
-  "Description": "Send commands to a local FiveM client",
+  "Description": "Send commands to a local FiveM or RedM client",
   "Icon": "Images/pluginIcon",
-  "URL": "https://github.com/EggRP/fxcommands",
-  "Version": "1.1",
-  "CodePath": "com.egg-rp.fxcommands",
-  "Category": "FiveM Commands",
+  "URL": "https://github.com/josh-tf/fxcommands",
+  "Version": "1.2.0.0",
+  "CodePath": "tf.josh.fxcommands.exe",
+  "UUID": "tf.josh.fxcommands",
+  "Category": "FxCommands",
   "CategoryIcon": "Images/categoryIcon",
   "OS": [
     {
@@ -53,6 +54,6 @@
   ],
   "SDKVersion": 2,
   "Software": {
-    "MinimumVersion": "4.3"
+    "MinimumVersion": "6.4"
   }
 }
