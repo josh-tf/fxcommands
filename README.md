@@ -2,62 +2,87 @@
 
 # FXCommands
 
-Stream Deck plugin for sending commands to the FiveM or RedM client console
+Stream Deck plugin for sending commands to the **FiveM** or **RedM** client console.
 
-This plugin works with a phisicial Stream Deck as well as the Stream Deck iOS and Android applications, if you don't own the hardware you can use your phone or tablet as a Stream Deck.
+This plugin works with a **physical Stream Deck** as well as the **Stream Deck iOS and Android** applications. If you don't own the hardware, you can use your phone or tablet as a Stream Deck.
 
-# Getting Started
+---
 
-Now available on the Stream Deck store: https://marketplace.elgato.com/product/fxcommands-fivem-a6cdf538-76ac-4fc7-b8b8-130ea2b8bcbb
+## 🚀 Getting Started
 
-Alternatively,
+Now available on the **Stream Deck Store**:
+🔗 [FXCommands on Stream Deck Marketplace](https://marketplace.elgato.com/product/fxcommands-fivem-a6cdf538-76ac-4fc7-b8b8-130ea2b8bcbb)
 
-- Download the Stream Deck plugin from the releases section [here](https://github.com/josh-tf/fxcommands/releases/)
-- Run the file and accept the Stream Deck install prompt
+### **Alternative Installation**
 
-# Usage
+1. Download the latest release from the [Releases](https://github.com/josh-tf/fxcommands/releases/) section.
+2. Run the `.streamDeckPlugin` file and accept the **Stream Deck installation prompt**.
 
-You can view the getting started tutorial and video [here](https://www.youtube.com/watch?v=D1XrZwVKcFQ)
+---
 
-Simply drag the action to your Stream Deck and fill in the command to be executed, you can chose to have a command executed when pressed or when released (or even both)
+## 🎮 Usage
 
-## Advanced Usage
+📺 **Getting Started Video Tutorial**:
+🎥 [Watch Here](https://www.youtube.com/watch?v=D1XrZwVKcFQ)
 
-Under `Advanced Options` you will find the option to select the number of stages (up to 5 total), staged commands will change the buttons action in stages before returning back to the first stage, as an example you could set up a command like:
+Simply drag the **FXCommands Action** onto your Stream Deck and enter the **command** to be executed.
+You can choose to execute a command **on press, on release, or both**.
 
-**Type multiple me commands**
+---
 
-- Stage 0: `me opens car boot`
-- Stage 1: `me inspects boot contents`
-- Stage 2: `me finds nothing, closes boot`
+## 🔧 Advanced Usage
 
-Your first press of the button will run the stage 0 command, the second press will run stage 1 and then the third press will run stage 2. If you press the button again, you will be back to stage 0.
+### **Staged Commands**
 
-You can use stage commands for things like emotes for a toggle, for example:
+Under `Advanced Options`, you can set up to **5 stages** for a button.
+Each stage runs a different command, cycling through them before returning to stage 0.
 
-- Stage 0: `e sit` -- sit down
-- Stage 1: `e c` -- cancel emote (stand up)
+#### **Example: Multi-Stage "Me" Commands**
 
-This will result in a button you press to sit down and press again to stand up (cancel emote)
+- **Stage 0**: `me opens car boot`
+- **Stage 1**: `me inspects boot contents`
+- **Stage 2**: `me finds nothing, closes boot`
 
-**Chained commands**
+Each press advances to the next stage. After Stage 2, the next press resets back to Stage 0.
 
-You can also chain commands by separating with a `;` character, for example a button with the command `me sit;me relaxes on the ground` - this will run both commands with one button press.
+#### **Example: Toggle Emote**
 
-**Other usage**
+- **Stage 0**: `e sit` — Sit down
+- **Stage 1**: `e c` — Cancel emote (stand up)
 
-You can use the command action in existing Stream Deck tools, for example the mutli-action with the delay action or in combination with the keypress action to create more complex buttons and combinations.
+This creates a **toggle button**: press once to sit, press again to stand.
 
-As an example, you could add a Stream Deck multi-action and add the following:
+---
 
-- Action 1: FXCommands Command `e think;me thinking`
-- Action 2: Delay(2000)
-- Action 3: FXCommands Command `e c`
+### **Chained Commands**
 
-This would create a button that would run the `think` emote, pause for 2 seconds and then cancel the emote.
+Commands can be **chained** using the `;` separator.
+For example, a button with:
 
-# Bugs and Issues
+```sh
+me sit;me relaxes on the ground
+```
 
-For common issues and solutions, check out the [Troubleshooting Guide](https://github.com/EggRP/fxcommands/wiki/Troubleshooting-Guide)
+Will execute both commands **sequentially** in a single button press.
 
-Please open a Github issue if you encounter any issues not covered above.
+---
+
+### **Multi-Action with Stream Deck**
+
+FXCommands can be used inside **Multi-Action** buttons for complex interactions.
+Example **Timed Emote** using Stream Deck’s Multi-Action:
+
+1. **Action 1:** FXCommands Command → `e think;me thinking`
+2. **Action 2:** Delay **2000ms** (2 seconds)
+3. **Action 3:** FXCommands Command → `e c`
+
+This button triggers the `think` emote, waits **2 seconds**, then cancels the emote.
+
+---
+
+## 🐞 Bugs and Issues
+
+📖 **Troubleshooting Guide**:
+🔗 [Common Issues & Fixes](https://github.com/EggRP/fxcommands/wiki/Troubleshooting-Guide)
+
+🛠 If you encounter an issue not covered above, please open a **GitHub Issue**.
