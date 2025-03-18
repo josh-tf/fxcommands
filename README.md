@@ -1,8 +1,8 @@
-![FXCommands by EggRP](https://i.imgur.com/Uk1afn1.png 'FXCommands')
+![FXCommands](media/fxcommands-banner.png 'FXCommands')
 
 # FXCommands
 
-Stream Deck plugin for sending commands to the FiveM & RedM client console
+Stream Deck plugin for sending commands to the FiveM or RedM client console
 
 This plugin works with a phisicial Stream Deck as well as the Stream Deck iOS and Android applications, if you don't own the hardware you can use your phone or tablet as a Stream Deck.
 
@@ -11,12 +11,13 @@ This plugin works with a phisicial Stream Deck as well as the Stream Deck iOS an
 Now available on the Stream Deck store: https://marketplace.elgato.com/product/fxcommands-fivem-a6cdf538-76ac-4fc7-b8b8-130ea2b8bcbb
 
 Alternatively,
-- Download the Stream Deck plugin from the releases section [here](https://github.com/EggRP/fxcommands/releases/)
+
+- Download the Stream Deck plugin from the releases section [here](https://github.com/josh-tf/fxcommands/releases/)
 - Run the file and accept the Stream Deck install prompt
 
 # Usage
 
-You can view the getting started tutorial and video [here](https://egg-rp.com/streamdeck/)
+You can view the getting started tutorial and video [here](https://www.youtube.com/watch?v=D1XrZwVKcFQ)
 
 Simply drag the action to your Stream Deck and fill in the command to be executed, you can chose to have a command executed when pressed or when released (or even both)
 
@@ -57,4 +58,6 @@ This would create a button that would run the `think` emote, pause for 2 seconds
 
 # Bugs and Issues
 
-Please open a Github issue if you encounter any problems
+For common issues and solutions, check out the [Troubleshooting Guide](https://github.com/EggRP/fxcommands/wiki/Troubleshooting-Guide)
+
+Please open a Github issue if you encounter any issues not covered above.
