@@ -83,6 +83,6 @@ This button triggers the `think` emote, waits **2 seconds**, then cancels the em
 ## 🐞 Bugs and Issues
 
 📖 **Troubleshooting Guide**:
-🔗 [Common Issues & Fixes](https://github.com/EggRP/fxcommands/wiki/Troubleshooting-Guide)
+🔗 [Common Issues & Fixes](https://github.com/josh-tf/fxcommands/wiki/Troubleshooting-Guide)
 
 🛠 If you encounter an issue not covered above, please open a **GitHub Issue**.
