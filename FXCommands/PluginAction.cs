@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace FXCommands
 {
-    [PluginActionId("com.egg-rp.fxcommands")]
+    [PluginActionId("tf.josh.fxcommands")]
     public class PluginAction : PluginBase
     {
 
@@ -231,49 +231,45 @@ namespace FXCommands
         #endregion
         public PluginAction(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {
-            if (payload.Settings == null || payload.Settings.Count == 0)
-            {
-                this.settings = PluginSettings.CreateDefaultSettings();
-            }
-            else
-            {
-                this.settings = payload.Settings.ToObject<PluginSettings>();
-            }
+            settings = payload.Settings == null || payload.Settings.Count == 0
+                ? PluginSettings.CreateDefaultSettings()
+                : payload.Settings.ToObject<PluginSettings>();
+
             connectionManager = new ConnectionManager();
             connectionManager.InitializeClients();
         }
 
         public override void Dispose()
         {
-            Logger.Instance.LogMessage(TracingLevel.INFO, $"Destructor called");
+            Logger.Instance.LogMessage(TracingLevel.INFO, "Destructor called");
             connectionManager.Dispose();
+            System.GC.Collect(); // Force garbage collection
         }
 
-        public override void KeyPressed(KeyPayload payload)
+        public override async void KeyPressed(KeyPayload payload)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, "Key Pressed");
-
             if (!string.IsNullOrEmpty(settings.CurrentCommandAction.CommandPressed))
             {
-                SendMessage(settings.CurrentCommandAction.CommandPressed);
+                await SendMessageAsync(settings.CurrentCommandAction.CommandPressed);
             }
         }
 
-        public override void KeyReleased(KeyPayload payload)
+        public override async void KeyReleased(KeyPayload payload)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, "Key Released");
             if (!string.IsNullOrEmpty(settings.CurrentCommandAction.CommandReleased))
             {
-                SendMessage(settings.CurrentCommandAction.CommandReleased);
+                await SendMessageAsync(settings.CurrentCommandAction.CommandReleased);
             }
             settings.CurrentState++;
             if (settings.CurrentState >= settings.DesiredStates) settings.CurrentState = 0;
-            SetStateAsync((uint)settings.CurrentState);
+            await SetStateAsync((uint)settings.CurrentState);
         }
 
-        private void SendMessage(string message)
+        private async Task SendMessageAsync(string message)
         {
-            connectionManager.SendMessage(message);
+            await Task.Run(() => connectionManager.SendMessage(message));
         }
 
         public override void OnTick() { }
