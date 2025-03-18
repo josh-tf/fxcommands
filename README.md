@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> The store listing is currently pending update to the latest version and the URL for this repository has changed. As the codepath has changed in the latest update, you may need to uninstall the old `FiveM Commands` extension before installing the latest version of `FXCommands`
+> 
+> You can do a manual installation by downloading the plugin via the [Releases](https://github.com/josh-tf/fxcommands/releases/) section in the meantime.
+
 ![FXCommands](media/fxcommands-banner.png 'FXCommands')
 
 # FXCommands
