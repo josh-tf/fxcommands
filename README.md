@@ -1,7 +1,9 @@
-> [!IMPORTANT]
-> The store listing is currently pending update to the latest version and the URL for this repository has changed. As the codepath has changed in the latest update, you may need to uninstall the old `FiveM Commands` extension before installing the latest version of `FXCommands`
-> 
-> You can do a manual installation by downloading the plugin via the [Releases](https://github.com/josh-tf/fxcommands/releases/) section in the meantime.
+> [!IMPORTANT]  
+> The `FXCommands` extension is now published on the [Elgato Marketplace](https://marketplace.elgato.com/product/fxcommands-3c018041-5776-412f-ad1b-1c0da734040b) 🕹️
+>
+> Due to changes in the code path and extension ID, **you'll need to uninstall the old `FiveM Commands` extension before installing `FXCommands`**.  
+>  
+> If you'd prefer a manual install or the Marketplace is temporarily unavailable, you can download the latest version directly from the [Releases](https://github.com/josh-tf/fxcommands/releases/) section.
 
 ![FXCommands](media/fxcommands-banner.png 'FXCommands')
 
