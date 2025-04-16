@@ -18,7 +18,7 @@ This plugin works with a **physical Stream Deck** as well as the **Stream Deck i
 ## 🚀 Getting Started
 
 Now available on the **Stream Deck Store**:
-🔗 [FXCommands on Stream Deck Marketplace](https://marketplace.elgato.com/product/fxcommands-fivem-a6cdf538-76ac-4fc7-b8b8-130ea2b8bcbb)
+🔗 [FXCommands on Stream Deck Marketplace](https://marketplace.elgato.com/product/fxcommands-3c018041-5776-412f-ad1b-1c0da734040b)
 
 ### **Alternative Installation**
 
@@ -28,9 +28,6 @@ Now available on the **Stream Deck Store**:
 ---
 
 ## 🎮 Usage
-
-📺 **Getting Started Video Tutorial**:
-🎥 [Watch Here](https://www.youtube.com/watch?v=D1XrZwVKcFQ)
 
 Simply drag the **FXCommands Action** onto your Stream Deck and enter the **command** to be executed.
 You can choose to execute a command **on press, on release, or both**.
