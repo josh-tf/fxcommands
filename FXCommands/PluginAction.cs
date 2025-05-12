@@ -42,7 +42,9 @@ namespace FXCommands
             TcpClient> tcpClients = new Dictionary<string,
             TcpClient>();
 
-            public int CurrentState = 0;
+            [JsonProperty(PropertyName = "currentState")]
+            public int CurrentState { get; set; } = 0;
+
             public CommandAction CurrentCommandAction
             {
                 get
@@ -262,9 +264,13 @@ namespace FXCommands
             {
                 await SendMessageAsync(settings.CurrentCommandAction.CommandReleased);
             }
+
             settings.CurrentState++;
-            if (settings.CurrentState >= settings.DesiredStates) settings.CurrentState = 0;
+            if (settings.CurrentState >= settings.DesiredStates)
+                settings.CurrentState = 0;
+
             await SetStateAsync((uint)settings.CurrentState);
+            await SaveSettings(); // ✅ Persist the state
         }
 
         private async Task SendMessageAsync(string message)
