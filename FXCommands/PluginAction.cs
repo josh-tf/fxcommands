@@ -12,8 +12,16 @@ namespace FXCommands
     {
 
         readonly static int MAXSTATES = 5;
+        private static bool firstPluginLoad = true; 
+        private int currentState = 0;
+        
+        private CommandAction CurrentCommandAction => settings.commands[currentState];
+
         private class PluginSettings
         {
+            [JsonProperty(PropertyName = "currentState")]
+            public int? StoredState { get; set; } = null;
+
             PluginSettings()
             {
                 commands = new List<CommandAction>(MAXSTATES);
@@ -36,22 +44,11 @@ namespace FXCommands
                 return instance;
             }
 
-            List<CommandAction> commands = new List<CommandAction>(5);
+            public List<CommandAction> commands = new List<CommandAction>(5);
 
             Dictionary<string,
             TcpClient> tcpClients = new Dictionary<string,
             TcpClient>();
-
-            [JsonProperty(PropertyName = "currentState")]
-            public int CurrentState { get; set; } = 0;
-
-            public CommandAction CurrentCommandAction
-            {
-                get
-                {
-                    return commands[CurrentState];
-                }
-            }
 
             [JsonProperty(PropertyName = "desiredStates")]
             public int DesiredStates
@@ -233,9 +230,22 @@ namespace FXCommands
         #endregion
         public PluginAction(SDConnection connection, InitialPayload payload) : base(connection, payload)
         {
-            settings = payload.Settings == null || payload.Settings.Count == 0
-                ? PluginSettings.CreateDefaultSettings()
-                : payload.Settings.ToObject<PluginSettings>();
+            settings = payload.Settings?.ToObject<PluginSettings>() ?? PluginSettings.CreateDefaultSettings();
+
+            if (firstPluginLoad)
+            {
+                settings.StoredState = null;
+                _ = SaveSettings();
+                firstPluginLoad = false;
+
+                currentState = 0;
+                _ = SetStateAsync(0);
+            }
+            else
+            {
+                currentState = settings.StoredState ?? 0;
+                _ = SetStateAsync((uint)currentState);
+            }
 
             connectionManager = new ConnectionManager();
             connectionManager.InitializeClients();
@@ -243,6 +253,9 @@ namespace FXCommands
 
         public override void Dispose()
         {
+            settings.StoredState = null;
+            _ = SaveSettings();
+
             Logger.Instance.LogMessage(TracingLevel.INFO, "Destructor called");
             connectionManager.Dispose();
             System.GC.Collect(); // Force garbage collection
@@ -251,26 +264,28 @@ namespace FXCommands
         public override async void KeyPressed(KeyPayload payload)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, "Key Pressed");
-            if (!string.IsNullOrEmpty(settings.CurrentCommandAction.CommandPressed))
+            if (!string.IsNullOrEmpty(CurrentCommandAction.CommandPressed))
             {
-                await SendMessageAsync(settings.CurrentCommandAction.CommandPressed);
+                await SendMessageAsync(CurrentCommandAction.CommandPressed);
             }
         }
 
         public override async void KeyReleased(KeyPayload payload)
         {
             Logger.Instance.LogMessage(TracingLevel.INFO, "Key Released");
-            if (!string.IsNullOrEmpty(settings.CurrentCommandAction.CommandReleased))
+
+            if (!string.IsNullOrEmpty(CurrentCommandAction.CommandReleased))
             {
-                await SendMessageAsync(settings.CurrentCommandAction.CommandReleased);
+                await SendMessageAsync(CurrentCommandAction.CommandReleased);
             }
 
-            settings.CurrentState++;
-            if (settings.CurrentState >= settings.DesiredStates)
-                settings.CurrentState = 0;
+            currentState++;
+            if (currentState >= settings.DesiredStates)
+                currentState = 0;
 
-            await SetStateAsync((uint)settings.CurrentState);
-            await SaveSettings(); // ✅ Persist the state
+            settings.StoredState = currentState;
+            await SaveSettings();
+            await SetStateAsync((uint)currentState);
         }
 
         private async Task SendMessageAsync(string message)
