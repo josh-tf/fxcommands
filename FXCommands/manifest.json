@@ -41,7 +41,7 @@
   "Description": "Send commands to a local FiveM or RedM client",
   "Icon": "Images/pluginIcon",
   "URL": "https://github.com/josh-tf/fxcommands",
-  "Version": "1.2.2.0",
+  "Version": "1.2.2.1",
   "CodePath": "tf.josh.fxcommands.exe",
   "UUID": "tf.josh.fxcommands",
   "Category": "FXCommands",
