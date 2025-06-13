@@ -163,8 +163,6 @@ namespace FXCommands
         {
             // Always set the state for built-in imagery
             await Connection.SetStateAsync((uint)currentState);
-            // Update title
-            await Connection.SetTitleAsync(GetStateTitle(currentState));
 
             // Only flash icon when there are multiple states
             if (settings.DesiredStates > 1)
