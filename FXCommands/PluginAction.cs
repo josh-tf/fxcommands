@@ -19,6 +19,9 @@ namespace FXCommands
 
         private class PluginSettings
         {
+            [JsonProperty(PropertyName = "title")]
+            public string ActionTitle { get; set; } = string.Empty;
+
             [JsonProperty(PropertyName = "currentState")]
             public int? StoredState { get; set; } = null;
 
@@ -163,8 +166,10 @@ namespace FXCommands
         {
             // Always set the state for built-in imagery
             await Connection.SetStateAsync((uint)currentState);
-            // Update title
-            await Connection.SetTitleAsync(GetStateTitle(currentState));
+
+            var title = settings.ActionTitle;
+            if (!string.IsNullOrWhiteSpace(title))
+                await Connection.SetTitleAsync(title);
 
             // Only flash icon when there are multiple states
             if (settings.DesiredStates > 1)
