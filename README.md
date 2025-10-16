@@ -64,7 +64,7 @@ Commands can be **chained** using the `;` separator.
 For example, a button with:
 
 ```sh
-me sit;me relaxes on the ground
+e sit;me relaxes on the ground
 ```
 
 Will execute both commands **sequentially** in a single button press.
