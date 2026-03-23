@@ -3,6 +3,10 @@ set -e
 
 # Usage: ./scripts/release.sh <version>
 # Example: ./scripts/release.sh 2.1.0
+#
+# Bumps version in package.json and manifest.json, runs checks,
+# builds, commits, and pushes. CI detects the version change and
+# creates a draft GitHub release with the plugin attached.
 
 VERSION="${1}"
 if [ -z "$VERSION" ]; then
@@ -11,10 +15,9 @@ if [ -z "$VERSION" ]; then
 	exit 1
 fi
 
-TAG="v${VERSION}"
 MANIFEST="tf.josh.fxcommands.sdPlugin/manifest.json"
 
-echo "Releasing ${TAG}..."
+echo "Releasing v${VERSION}..."
 
 # Update package.json version
 npm version "$VERSION" --no-git-tag-version
@@ -26,16 +29,13 @@ sed -i "s/\"Version\": \"[^\"]*\"/\"Version\": \"${VERSION}.0\"/" "$MANIFEST"
 npm run check
 npm run build
 
-# Commit, tag, push
+# Commit and push - CI will tag and create the release
 git add package.json package-lock.json "$MANIFEST"
 git commit -S -m "chore: bump version to ${VERSION}"
-git tag -s "$TAG" -m "$TAG"
 git push origin main
-git push origin "$TAG"
 
 echo ""
-echo "Released ${TAG}"
-echo "Draft release will be created by CI at:"
+echo "Pushed v${VERSION} - CI will create a draft release at:"
 echo "https://github.com/josh-tf/fxcommands/releases"
 echo ""
 echo "Plugin: dist/tf.josh.fxcommands.streamDeckPlugin"
