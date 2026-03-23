@@ -5,7 +5,7 @@ import path from "node:path";
 import url from "node:url";
 
 const isWatching = !!process.env.ROLLUP_WATCH;
-const sdPlugin = "dist/com.josh-tf.fxcommands.sdPlugin";
+const sdPlugin = "dist/tf.josh.fxcommands.sdPlugin";
 
 /**
  * @type {import('rollup').RollupOptions}
@@ -25,7 +25,7 @@ const config = {
 		{
 			name: "watch-externals",
 			buildStart: function () {
-				this.addWatchFile("com.josh-tf.fxcommands.sdPlugin/manifest.json");
+				this.addWatchFile("tf.josh.fxcommands.sdPlugin/manifest.json");
 			}
 		},
 		typescript(),

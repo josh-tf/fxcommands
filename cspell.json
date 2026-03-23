@@ -25,7 +25,7 @@
 		"node_modules/",
 		"legacy/",
 		"package-lock.json",
-		"com.josh-tf.fxcommands.sdPlugin/ui/sdpi.css",
-		"com.josh-tf.fxcommands.sdPlugin/imgs/"
+		"tf.josh.fxcommands.sdPlugin/ui/sdpi.css",
+		"tf.josh.fxcommands.sdPlugin/imgs/"
 	]
 }

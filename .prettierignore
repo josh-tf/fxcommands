@@ -1,5 +1,5 @@
 dist/
 node_modules/
 legacy/
-com.josh-tf.fxcommands.sdPlugin/ui/sdpi.css
+tf.josh.fxcommands.sdPlugin/ui/sdpi.css
 package-lock.json

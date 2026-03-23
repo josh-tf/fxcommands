@@ -8,27 +8,27 @@
 				{
 					"Image": "imgs/pluginAction0",
 					"TitleAlignment": "middle",
-					"FontSize": "12"
+					"FontSize": 12
 				},
 				{
 					"Image": "imgs/pluginAction1",
 					"TitleAlignment": "middle",
-					"FontSize": "12"
+					"FontSize": 12
 				},
 				{
 					"Image": "imgs/pluginAction2",
 					"TitleAlignment": "middle",
-					"FontSize": "12"
+					"FontSize": 12
 				},
 				{
 					"Image": "imgs/pluginAction3",
 					"TitleAlignment": "middle",
-					"FontSize": "12"
+					"FontSize": 12
 				},
 				{
 					"Image": "imgs/pluginAction4",
 					"TitleAlignment": "middle",
-					"FontSize": "12"
+					"FontSize": 12
 				}
 			],
 			"SupportedInMultiActions": true,
