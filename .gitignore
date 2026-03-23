@@ -1,10 +1,29 @@
-_ReSharper.*/
-*.sdf
-bin/
-obj/
-Debug/...
-*.pdb
-.vs/
-/Release/*
-/FXCommands/bin/Debug
-/FXCommands/bin/Release
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Source maps
+*.js.map
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.*
+
+# Legacy Visual Studio cache
+legacy/.vs/

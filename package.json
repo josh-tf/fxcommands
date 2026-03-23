@@ -1,0 +1,47 @@
+{
+	"name": "fxcommands",
+	"version": "2.0.0",
+	"description": "Stream Deck plugin for sending commands to the FiveM or RedM client console",
+	"author": "josh-tf",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/josh-tf/fxcommands"
+	},
+	"type": "module",
+	"scripts": {
+		"prebuild": "rm -rf dist && mkdir -p dist/com.josh-tf.fxcommands.sdPlugin && cp -r com.josh-tf.fxcommands.sdPlugin/manifest.json com.josh-tf.fxcommands.sdPlugin/imgs com.josh-tf.fxcommands.sdPlugin/ui dist/com.josh-tf.fxcommands.sdPlugin/",
+		"build": "rollup -c",
+		"postbuild": "cd dist && zip -r tf.josh.fxcommands.streamDeckPlugin com.josh-tf.fxcommands.sdPlugin/",
+		"watch": "rollup -c -w",
+		"lint": "eslint src/",
+		"lint:fix": "eslint src/ --fix",
+		"typecheck": "tsc --noEmit",
+		"format": "prettier --write \"src/**/*.ts\" \"com.josh-tf.fxcommands.sdPlugin/**/*.{js,html}\" \"*.{json,mjs}\"",
+		"format:check": "prettier --check \"src/**/*.ts\" \"com.josh-tf.fxcommands.sdPlugin/**/*.{js,html}\" \"*.{json,mjs}\"",
+		"spell": "cspell \"src/**/*.ts\" \"com.josh-tf.fxcommands.sdPlugin/**/*.{js,html}\" \"*.md\" \"*.json\"",
+		"circular": "madge --circular --extensions ts src/",
+		"unused": "knip",
+		"check": "npm run typecheck && npm run lint && npm run format:check && npm run spell && npm run circular && npm run unused"
+	},
+	"dependencies": {
+		"@elgato/streamdeck": "^2.0.0"
+	},
+	"devDependencies": {
+		"@elgato/cli": "^1.0.0",
+		"@eslint/js": "^10.0.1",
+		"@rollup/plugin-commonjs": "^29.0.2",
+		"@rollup/plugin-node-resolve": "^16.0.0",
+		"@rollup/plugin-typescript": "^12.1.0",
+		"@types/node": "^25.5.0",
+		"cspell": "^9.7.0",
+		"eslint": "^10.1.0",
+		"knip": "^6.0.2",
+		"madge": "^8.0.0",
+		"prettier": "^3.8.1",
+		"rollup": "^4.28.0",
+		"tslib": "^2.8.0",
+		"typescript": "^5.7.0",
+		"typescript-eslint": "^8.57.1"
+	}
+}

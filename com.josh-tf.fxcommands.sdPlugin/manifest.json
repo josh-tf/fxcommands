@@ -1,0 +1,68 @@
+{
+	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+	"Actions": [
+		{
+			"Icon": "imgs/icon",
+			"Name": "Run Command",
+			"States": [
+				{
+					"Image": "imgs/pluginAction0",
+					"TitleAlignment": "middle",
+					"FontSize": "12"
+				},
+				{
+					"Image": "imgs/pluginAction1",
+					"TitleAlignment": "middle",
+					"FontSize": "12"
+				},
+				{
+					"Image": "imgs/pluginAction2",
+					"TitleAlignment": "middle",
+					"FontSize": "12"
+				},
+				{
+					"Image": "imgs/pluginAction3",
+					"TitleAlignment": "middle",
+					"FontSize": "12"
+				},
+				{
+					"Image": "imgs/pluginAction4",
+					"TitleAlignment": "middle",
+					"FontSize": "12"
+				}
+			],
+			"SupportedInMultiActions": true,
+			"UUID": "tf.josh.fxcommands.action",
+			"Tooltip": "Send commands to a local FiveM or RedM client",
+			"PropertyInspectorPath": "ui/PluginActionPI.html",
+			"Controllers": ["Keypad"]
+		}
+	],
+	"Author": "josh-tf",
+	"Name": "FXCommands",
+	"Description": "Send commands to a local FiveM or RedM client",
+	"Icon": "imgs/pluginIcon",
+	"URL": "https://github.com/josh-tf/fxcommands",
+	"Version": "2.0.0.0",
+	"CodePath": "bin/plugin.js",
+	"UUID": "tf.josh.fxcommands",
+	"Category": "FXCommands",
+	"CategoryIcon": "imgs/categoryIcon",
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		},
+		{
+			"Platform": "mac",
+			"MinimumVersion": "10.15"
+		}
+	],
+	"Nodejs": {
+		"Version": "20"
+	},
+	"SDKVersion": 2,
+	"Software": {
+		"MinimumVersion": "6.6"
+	}
+}
