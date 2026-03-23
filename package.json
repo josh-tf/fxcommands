@@ -22,7 +22,8 @@
 		"spell": "cspell \"src/**/*.ts\" \"tf.josh.fxcommands.sdPlugin/**/*.{js,html}\" \"*.md\" \"*.json\"",
 		"circular": "madge --circular --extensions ts src/",
 		"unused": "knip",
-		"check": "npm run typecheck && npm run lint && npm run format:check && npm run spell && npm run circular && npm run unused"
+		"check": "npm run typecheck && npm run lint && npm run format:check && npm run spell && npm run circular && npm run unused",
+		"release": "bash scripts/release.sh"
 	},
 	"dependencies": {
 		"@elgato/streamdeck": "^2.0.0"
