@@ -1,0 +1,31 @@
+{
+	"version": "0.2",
+	"language": "en",
+	"words": [
+		"fxcommands",
+		"fivem",
+		"redm",
+		"icecon",
+		"rcon",
+		"elgato",
+		"streamdeck",
+		"sdpi",
+		"sdPlugin",
+		"tslib",
+		"rollup",
+		"commonjs",
+		"esmodule",
+		"noEmit",
+		"cmnd",
+		"keypad",
+		"imgs"
+	],
+	"ignorePaths": [
+		"dist/",
+		"node_modules/",
+		"legacy/",
+		"package-lock.json",
+		"com.josh-tf.fxcommands.sdPlugin/ui/sdpi.css",
+		"com.josh-tf.fxcommands.sdPlugin/imgs/"
+	]
+}
