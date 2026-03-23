@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name=viewport content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no,minimal-ui,viewport-fit=cover">
+    <meta name=apple-mobile-web-app-capable content=yes>
+    <meta name=apple-mobile-web-app-status-bar-style content=black>
+    <title>FXCommands Settings</title>
+    <link rel="stylesheet" href="sdpi.css">
+    <script src="sdtools.common.js"></script>
+    <script src="PluginActionPI.js"></script>
+</head>
+<body>
+    <div class="sdpi-wrapper">
+        <details>
+            <summary>Advanced Settings</summary>
+            <div class="sdpi-item" id="dvTitlePrefix">
+                <div class="sdpi-item-label">No. of states (Max 5)</div>
+                <input class="sdpi-item-value sdProperty" type="number" placeholder="1" value="1" id="desiredStates" min="1" max="5" pattern="[0-9]{1,2}" onchange="setdesiredState()">
+            </div>
+        </details>
+        <div id="State0">
+            <div class="sdpi-heading">Command</div>
+            <div class="sdpi-item" id="dvTitlePrefix">
+                <div class="sdpi-item-label">On Press</div>
+                <input class="sdpi-item-value sdProperty" placeholder="CommandPressed" value="" id="commandPressed0" oninput="setSettings()">
+            </div>
+            <div class="sdpi-item" id="dvTitlePrefix">
+                <div class="sdpi-item-label">On Release</div>
+                <input class="sdpi-item-value sdProperty" placeholder="CommandReleased" value="" id="commandReleased0" oninput="setSettings()">
+            </div>
+        </div>
+        <div id="State1" style="display: none">
+            <div class="sdpi-heading">Command (State 1)</div>
+            <div class="sdpi-item" id="dvTitlePrefix">
+                <div class="sdpi-item-label">On Press</div>
+                <input class="sdpi-item-value sdProperty" placeholder="CommandPressed" value="" id="commandPressed1" oninput="setSettings()">
+            </div>
+            <div class="sdpi-item" id="dvTitlePrefix">
+                <div class="sdpi-item-label">On Release</div>
+                <input class="sdpi-item-value sdProperty" placeholder="CommandReleased" value="" id="commandReleased1" oninput="setSettings()">
+            </div>
+        </div>
+        <div id="State2" style="display: none">
+            <div class="sdpi-heading">Command (State 2)</div>
+            <div class="sdpi-item" id="dvTitlePrefix">
+                <div class="sdpi-item-label">On Press</div>
+                <input class="sdpi-item-value sdProperty" placeholder="CommandPressed" value="" id="commandPressed2" oninput="setSettings()">
+            </div>
+            <div class="sdpi-item" id="dvTitlePrefix">
+                <div class="sdpi-item-label">On Release</div>
+                <input class="sdpi-item-value sdProperty" placeholder="CommandReleased" value="" id="commandReleased2" oninput="setSettings()">
+            </div>
+        </div>
+        <div id="State3" style="display: none">
+            <div class="sdpi-heading">Command (State 3)</div>
+            <div class="sdpi-item" id="dvTitlePrefix">
+                <div class="sdpi-item-label">On Press</div>
+                <input class="sdpi-item-value sdProperty" placeholder="CommandPressed" value="" id="commandPressed3" oninput="setSettings()">
+            </div>
+            <div class="sdpi-item" id="dvTitlePrefix">
+                <div class="sdpi-item-label">On Release</div>
+                <input class="sdpi-item-value sdProperty" placeholder="CommandReleased" value="" id="commandReleased3" oninput="setSettings()">
+            </div>
+        </div>
+        <div id="State4" style="display: none">
+            <div class="sdpi-heading">Command (State 4)</div>
+            <div class="sdpi-item" id="dvTitlePrefix">
+                <div class="sdpi-item-label">On Press</div>
+                <input class="sdpi-item-value sdProperty" placeholder="CommandPressed" value="" id="commandPressed4" oninput="setSettings()">
+            </div>
+            <div class="sdpi-item" id="dvTitlePrefix">
+                <div class="sdpi-item-label">On Release</div>
+                <input class="sdpi-item-value sdProperty" placeholder="CommandReleased" value="" id="commandReleased4" oninput="setSettings()">
+            </div>
+        </div>
+    </div>
+</body>
+</html>
