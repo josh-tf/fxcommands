@@ -61,8 +61,8 @@
 	"Nodejs": {
 		"Version": "20"
 	},
-	"SDKVersion": 2,
+	"SDKVersion": 3,
 	"Software": {
-		"MinimumVersion": "6.6"
+		"MinimumVersion": "6.9"
 	}
 }
