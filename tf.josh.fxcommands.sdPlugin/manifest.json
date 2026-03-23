@@ -43,7 +43,7 @@
 	"Description": "Send commands to a local FiveM or RedM client",
 	"Icon": "imgs/pluginIcon",
 	"URL": "https://github.com/josh-tf/fxcommands",
-	"Version": "2.0.0.0",
+	"Version": "2.0.1.0",
 	"CodePath": "bin/plugin.js",
 	"UUID": "tf.josh.fxcommands",
 	"Category": "FXCommands",
