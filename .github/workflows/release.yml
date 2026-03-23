@@ -23,4 +23,4 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/tf.josh.fxcommands.streamDeckPlugin
-          generate_release_notes: true
+          draft: true
