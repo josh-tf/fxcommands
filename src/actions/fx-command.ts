@@ -62,7 +62,7 @@ function getCommandAction(settings: FXCommandSettings, stateIndex: number): Comm
 	};
 }
 
-@action({ UUID: "tf.josh.fxcommands.run-command" })
+@action({ UUID: "tf.josh.fxcommands" })
 export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	private connectionManager = new ConnectionManager();
 	private states = new Map<string, number>();
