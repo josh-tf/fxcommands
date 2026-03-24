@@ -32,7 +32,7 @@
 				}
 			],
 			"SupportedInMultiActions": true,
-			"UUID": "tf.josh.fxcommands.action",
+			"UUID": "tf.josh.fxcommands",
 			"Tooltip": "Send commands to a local FiveM or RedM client",
 			"PropertyInspectorPath": "ui/PluginActionPI.html",
 			"Controllers": ["Keypad"]
@@ -43,7 +43,7 @@
 	"Description": "Send commands to a local FiveM or RedM client",
 	"Icon": "imgs/pluginIcon",
 	"URL": "https://github.com/josh-tf/fxcommands",
-	"Version": "2.0.1.0",
+	"Version": "2.0.2.0",
 	"CodePath": "bin/plugin.js",
 	"UUID": "tf.josh.fxcommands",
 	"Category": "FXCommands",
@@ -59,7 +59,7 @@
 		}
 	],
 	"Nodejs": {
-		"Version": "20"
+		"Version": "2.0.2.0"
 	},
 	"SDKVersion": 3,
 	"Software": {
