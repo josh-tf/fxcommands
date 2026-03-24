@@ -32,10 +32,47 @@
 				}
 			],
 			"SupportedInMultiActions": true,
-			"UUID": "tf.josh.fxcommands",
+			"UUID": "tf.josh.fxcommands.run-command",
 			"Tooltip": "Send commands to a local FiveM or RedM client",
 			"PropertyInspectorPath": "ui/PluginActionPI.html",
 			"Controllers": ["Keypad"]
+		},
+		{
+			"Icon": "imgs/icon",
+			"Name": "Run Command (Legacy)",
+			"States": [
+				{
+					"Image": "imgs/pluginAction0",
+					"TitleAlignment": "middle",
+					"FontSize": 12
+				},
+				{
+					"Image": "imgs/pluginAction1",
+					"TitleAlignment": "middle",
+					"FontSize": 12
+				},
+				{
+					"Image": "imgs/pluginAction2",
+					"TitleAlignment": "middle",
+					"FontSize": 12
+				},
+				{
+					"Image": "imgs/pluginAction3",
+					"TitleAlignment": "middle",
+					"FontSize": 12
+				},
+				{
+					"Image": "imgs/pluginAction4",
+					"TitleAlignment": "middle",
+					"FontSize": 12
+				}
+			],
+			"SupportedInMultiActions": true,
+			"UUID": "tf.josh.fxcommands",
+			"Tooltip": "Legacy action - existing buttons will continue to work",
+			"PropertyInspectorPath": "ui/PluginActionPI.html",
+			"Controllers": ["Keypad"],
+			"VisibleInActionsList": false
 		}
 	],
 	"Author": "josh-tf",
