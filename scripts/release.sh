@@ -22,8 +22,8 @@ echo "Releasing v${VERSION}..."
 # Update package.json version
 npm version "$VERSION" --no-git-tag-version
 
-# Update manifest.json version (4-part format)
-sed -i "s/\"Version\": \"[^\"]*\"/\"Version\": \"${VERSION}.0\"/" "$MANIFEST"
+# Update manifest.json plugin version (4-part format, only the one after "URL" line)
+sed -i "/\"URL\"/,/\"Version\"/ s/\"Version\": \"[^\"]*\"/\"Version\": \"${VERSION}.0\"/" "$MANIFEST"
 
 # Check and build
 npm run check
