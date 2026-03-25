@@ -98,7 +98,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	 *   "me sits;{500ms};me stands up"   500ms delay with explicit syntax
 	 *   "e sit;{1500ms};me looks;{2000ms};e c"
 	 */
-	private async sendCommand(command: string): Promise<void> {
+	private async sendCommand(command: string): Promise<boolean> {
 		// Split into tokens: commands and delay markers
 		// ;; becomes a 500ms delay, {NNNms} becomes an NNN ms delay
 		const tokens: Array<{ type: "cmd"; value: string } | { type: "delay"; ms: number }> = [];
@@ -117,13 +117,16 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 			remaining = remaining.slice(match.index! + match[0].length);
 		}
 
+		let success = true;
 		for (const token of tokens) {
 			if (token.type === "delay") {
 				await sleep(token.ms);
 			} else if (token.value) {
-				await this.connectionManager.send(token.value);
+				const sent = await this.connectionManager.send(token.value);
+				if (!sent) success = false;
 			}
 		}
+		return success;
 	}
 
 	override async onKeyDown(ev: KeyDownEvent<FXCommandSettings>): Promise<void> {
@@ -133,7 +136,8 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (cmd.commandPressed) {
 			logger.debug(`KeyDown [${currentState}]: ${cmd.commandPressed}`);
-			await this.sendCommand(cmd.commandPressed);
+			const ok = await this.sendCommand(cmd.commandPressed);
+			if (!ok) await ev.action.showAlert();
 		}
 	}
 
@@ -144,7 +148,8 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (cmd.commandReleased) {
 			logger.debug(`KeyUp [${currentState}]: ${cmd.commandReleased}`);
-			await this.sendCommand(cmd.commandReleased);
+			const ok = await this.sendCommand(cmd.commandReleased);
+			if (!ok) await ev.action.showAlert();
 		}
 
 		// Advance to next state

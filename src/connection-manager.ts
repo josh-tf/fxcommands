@@ -4,7 +4,8 @@ import streamDeck from "@elgato/streamdeck";
 const logger = streamDeck.logger.createScope("ConnectionManager");
 
 /** CMND protocol header bytes. */
-const CMND_HEADER = Buffer.from([0x43, 0x4d, 0x4e, 0x44, 0x00, 0xd2, 0x00, 0x00]);
+const CMND_MAGIC = Buffer.from([0x43, 0x4d, 0x4e, 0x44]);
+const CMND_PROTOCOL = Buffer.from([0x00, 0xd3]); // 211 big-endian
 
 /**
  * Manages a persistent TCP connection to the FiveM/RedM console on localhost:29200.
@@ -69,29 +70,38 @@ export class ConnectionManager {
 	 * Build and send a CMND protocol frame.
 	 *
 	 * Frame layout:
-	 *   [8 bytes header]  CMND magic
-	 *   [4 bytes length]  big-endian, value = byte_length + 13
-	 *   [2 bytes padding] 0x00 0x00
-	 *   [N bytes command]  UTF-8 encoded + newline
+	 *   [4 bytes magic]     CMND (0x43 0x4d 0x4e 0x44)
+	 *   [2 bytes protocol]  0x00 0xd3 (211 big-endian)
+	 *   [4 bytes length]    big-endian, command length + 1
+	 *   [2 bytes padding]   0x00 0x00
+	 *   [N bytes command]   UTF-8 encoded + newline
 	 *   [1 byte terminator] 0x00
 	 */
-	public async send(message: string): Promise<void> {
+	public async send(message: string): Promise<boolean> {
 		if (!this.socket || !this.connected) {
 			await this.connect();
 		}
 
 		if (!this.socket || !this.connected) {
 			logger.error(`Failed to send (not connected): ${message}`);
-			return;
+			return false;
 		}
 
 		const command = Buffer.from(message + "\n", "utf-8");
 		const length = Buffer.alloc(4);
-		length.writeUInt32BE(command.length + 12);
+		length.writeUInt32BE(command.length + 1);
 
-		const data = Buffer.concat([CMND_HEADER, length, Buffer.from([0x00, 0x00]), command, Buffer.from([0x00])]);
+		const data = Buffer.concat([
+			CMND_MAGIC,
+			CMND_PROTOCOL,
+			length,
+			Buffer.from([0x00, 0x00]),
+			command,
+			Buffer.from([0x00])
+		]);
 
 		this.socket.write(data);
+		return true;
 	}
 
 	/** Close the TCP connection. */
