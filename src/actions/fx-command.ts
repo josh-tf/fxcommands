@@ -12,6 +12,12 @@ import { ConnectionManager } from "../connection-manager";
 
 const logger = streamDeck.logger.createScope("FXCommandAction");
 const MAX_STATES = 5;
+const DELAY_MS = 500;
+
+/** Delay helper. */
+function sleep(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 /** Per-state command pair. */
 type CommandAction = {
@@ -82,6 +88,44 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		await this.connectionManager.connect();
 	}
 
+	/**
+	 * Send a command string, supporting delayed sequences.
+	 * Use ;; for a default 500ms delay, or {ms} for a custom delay.
+	 * Single ; is passed through to FiveM as a native chained command.
+	 *
+	 * Examples:
+	 *   "e sit;;me relaxes"              500ms delay between commands
+	 *   "me sits;{500ms};me stands up"   500ms delay with explicit syntax
+	 *   "e sit;{1500ms};me looks;{2000ms};e c"
+	 */
+	private async sendCommand(command: string): Promise<void> {
+		// Split into tokens: commands and delay markers
+		// ;; becomes a 500ms delay, {NNNms} becomes an NNN ms delay
+		const tokens: Array<{ type: "cmd"; value: string } | { type: "delay"; ms: number }> = [];
+		let remaining = command;
+
+		while (remaining.length > 0) {
+			const match = remaining.match(/;?;;|;?\{(\d+)ms\};?/i);
+			if (!match) {
+				tokens.push({ type: "cmd", value: remaining.trim() });
+				break;
+			}
+			const before = remaining.slice(0, match.index).trim();
+			if (before) tokens.push({ type: "cmd", value: before });
+			const ms = match[1] ? parseInt(match[1]) : DELAY_MS;
+			tokens.push({ type: "delay", ms });
+			remaining = remaining.slice(match.index! + match[0].length);
+		}
+
+		for (const token of tokens) {
+			if (token.type === "delay") {
+				await sleep(token.ms);
+			} else if (token.value) {
+				await this.connectionManager.send(token.value);
+			}
+		}
+	}
+
 	override async onKeyDown(ev: KeyDownEvent<FXCommandSettings>): Promise<void> {
 		const settings = { ...defaultSettings(), ...ev.payload.settings };
 		const currentState = this.states.get(ev.action.id) ?? 0;
@@ -89,7 +133,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (cmd.commandPressed) {
 			logger.debug(`KeyDown [${currentState}]: ${cmd.commandPressed}`);
-			await this.connectionManager.send(cmd.commandPressed);
+			await this.sendCommand(cmd.commandPressed);
 		}
 	}
 
@@ -100,7 +144,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (cmd.commandReleased) {
 			logger.debug(`KeyUp [${currentState}]: ${cmd.commandReleased}`);
-			await this.connectionManager.send(cmd.commandReleased);
+			await this.sendCommand(cmd.commandReleased);
 		}
 
 		// Advance to next state
