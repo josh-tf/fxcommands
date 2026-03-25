@@ -1,6 +1,9 @@
 > [!CAUTION]
 > ### Marketplace version is currently outdated
-> The latest version is pending approval on the Elgato Marketplace. If you're experiencing issues such as **"action not found"** or **missing settings**, please install the latest release directly from **[GitHub Releases](https://github.com/josh-tf/fxcommands/releases/latest)**.
+> The latest version is pending approval on the Elgato Marketplace. If you're experiencing issues such as **"action not found"** or **missing settings**, please install manually:
+> 1. Go to the **[Latest Release](https://github.com/josh-tf/fxcommands/releases/latest)**
+> 2. Download the `.streamDeckPlugin` file
+> 3. Double-click the downloaded file to install
 
 ![FXCommands](media/fxcommands-banner.png 'FXCommands')
 
