@@ -15,7 +15,7 @@ if [ -z "$VERSION" ]; then
 	exit 1
 fi
 
-MANIFEST="tf.josh.fxcommands.sdPlugin/manifest.json"
+MANIFEST="plugin/manifest.json"
 
 echo "Releasing v${VERSION}..."
 

@@ -25,5 +25,5 @@ Thumbs.db
 .env
 .env.*
 
-# Legacy Visual Studio cache
-legacy/.vs/
+# Scratch files
+tmp/

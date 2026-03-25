@@ -25,7 +25,7 @@ const config = {
 		{
 			name: "watch-externals",
 			buildStart: function () {
-				this.addWatchFile("tf.josh.fxcommands.sdPlugin/manifest.json");
+				this.addWatchFile("plugin/manifest.json");
 			}
 		},
 		typescript(),

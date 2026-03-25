@@ -20,12 +20,5 @@
 		"keypad",
 		"imgs"
 	],
-	"ignorePaths": [
-		"dist/",
-		"node_modules/",
-		"legacy/",
-		"package-lock.json",
-		"tf.josh.fxcommands.sdPlugin/ui/sdpi.css",
-		"tf.josh.fxcommands.sdPlugin/imgs/"
-	]
+	"ignorePaths": ["dist/", "node_modules/", "package-lock.json", "plugin/ui/sdpi.css", "plugin/imgs/"]
 }

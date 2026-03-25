@@ -11,6 +11,6 @@ export default tseslint.config(
 		}
 	},
 	{
-		ignores: ["dist/", "node_modules/", "tf.josh.fxcommands.sdPlugin/", "tools/", "legacy/", "rollup.config.mjs"]
+		ignores: ["dist/", "node_modules/", "plugin/", "scripts/", "landing/", "rollup.config.mjs"]
 	}
 );

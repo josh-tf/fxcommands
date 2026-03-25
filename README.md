@@ -108,7 +108,7 @@ npm run build
 ```
 
 The built plugin is output to `dist/`:
-- `dist/tf.josh.fxcommands.sdPlugin/` - unpacked plugin
+- `dist/tf.josh.fxcommands.sdPlugin/` — unpacked plugin
 - `dist/tf.josh.fxcommands.streamDeckPlugin` - installable package
 
 ### Development (watch mode)
