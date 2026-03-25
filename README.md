@@ -66,16 +66,23 @@ Will execute both commands **sequentially** in a single button press.
 
 ---
 
-### Multi-Action with Stream Deck
+### Delayed Commands
 
-FXCommands can be used inside **Multi-Action** buttons for complex interactions.
-Example **Timed Emote** using Stream Deck's Multi-Action:
+Add a delay between commands using `;;` (500ms default) or `{NNNms}` for a custom delay.
 
-1. **Action 1:** FXCommands Command - `e think;me thinking`
-2. **Action 2:** Delay **2000ms** (2 seconds)
-3. **Action 3:** FXCommands Command - `e c`
+```sh
+me sits;{500ms};me stands up
+```
 
-This button triggers the `think` emote, waits **2 seconds**, then cancels the emote.
+This sends `me sits`, waits 500ms, then sends `me stands up`.
+
+#### Example: Timed Emote
+
+```sh
+e think;me thinking;{2000ms};e c
+```
+
+Triggers the `think` emote, waits **2 seconds**, then cancels it - all from a single button press.
 
 ---
 
@@ -84,7 +91,7 @@ This button triggers the `think` emote, waits **2 seconds**, then cancels the em
 ### Prerequisites
 
 - [Node.js](https://nodejs.org/) 20+
-- [Stream Deck](https://www.elgato.com/stream-deck) 6.6+
+- [Stream Deck](https://www.elgato.com/stream-deck) 6.9+
 
 ### Build
 
