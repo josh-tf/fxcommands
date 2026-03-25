@@ -8,6 +8,9 @@ This plugin works with a **physical Stream Deck** connected to the same PC runni
 
 > **v2.0** - Rebuilt with the [Elgato Stream Deck SDK 2.0](https://docs.elgato.com/streamdeck/sdk/introduction/getting-started/) (TypeScript/Node.js). Cross-platform build support, same functionality.
 
+> [!NOTE]
+> The latest version is currently pending approval on the Elgato Marketplace. If you're experiencing issues such as "action not found" or missing settings, please install the latest release directly from [GitHub Releases](https://github.com/josh-tf/fxcommands/releases/latest).
+
 ---
 
 ## Getting Started
