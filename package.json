@@ -1,6 +1,6 @@
 {
 	"name": "fxcommands",
-	"version": "2.0.3",
+	"version": "2.0.4",
 	"description": "Stream Deck plugin for sending commands to the FiveM or RedM client console",
 	"author": "josh-tf",
 	"license": "MIT",
