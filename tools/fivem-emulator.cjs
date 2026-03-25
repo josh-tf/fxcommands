@@ -10,43 +10,53 @@ const net = require("net");
 
 const PORT = 29200;
 const HOST = "127.0.0.1";
-const HEADER = Buffer.from([0x43, 0x4d, 0x4e, 0x44, 0x00, 0xd2, 0x00, 0x00]);
+const CMND_MAGIC = Buffer.from([0x43, 0x4d, 0x4e, 0x44]); // 'CMND'
 
 /**
  * Parse all complete CMND messages from a buffer.
- * Returns { messages: string[], remainder: Buffer }
+ * Returns { messages: [], remainder: Buffer }
  *
- * Frame: [8 header][4 length BE][2 padding][command + \n][0x00]
- * The length field = command.length + 13
- * Total frame size = 8 + 4 + 2 + command.length + 1 + 1 = command.length + 16
- *                  = (length - 13) + 16 = length + 3
+ * Frame layout (matches FiveM devcon protocol):
+ *   [4 bytes magic]     CMND (0x43 0x4D 0x4E 0x44)
+ *   [2 bytes protocol]  big-endian uint16 (211 = 0x00D3)
+ *   [4 bytes length]    big-endian uint32
+ *   [2 bytes padding]   0x00 0x00
+ *   [N bytes command]   UTF-8 + newline
+ *   [1 byte terminator] 0x00
+ *
+ * Minimum frame: 12 header bytes + 1 command byte + 1 terminator = 14 bytes
+ * FiveM ignores the length field for CMND, reading all remaining bytes.
+ * We use it here for proper frame boundary detection when multiple
+ * messages arrive in a single TCP chunk.
  */
 function parseFrames(buf) {
 	const messages = [];
 	let offset = 0;
 
 	while (offset < buf.length) {
-		// Need at least 14 bytes for header + length + padding
-		if (buf.length - offset < 14) break;
+		// Need at least 12 bytes for magic + protocol + length + padding
+		if (buf.length - offset < 12) break;
 
-		// Check CMND header
-		if (!buf.subarray(offset, offset + 8).equals(HEADER)) {
+		// Check CMND magic (first 4 bytes)
+		if (!buf.subarray(offset, offset + 4).equals(CMND_MAGIC)) {
 			// Not a valid frame, dump rest as raw
 			messages.push({ raw: true, text: buf.subarray(offset).toString("utf-8").trim() });
 			offset = buf.length;
 			break;
 		}
 
-		// Read declared length
-		const declaredLength = buf.readUInt32BE(offset + 8);
-		// Total frame size: header(8) + length_field(4) + padding(2) + command_bytes + terminator(1)
-		// declaredLength = command.length + 13, so command.length = declaredLength - 13
-		// frame size = 8 + 4 + 2 + (declaredLength - 13) + 1 + 1 = declaredLength + 3
-		const frameSize = declaredLength + 3;
+		// Read length field at offset +6 (after 4 magic + 2 protocol)
+		const declaredLength = buf.readUInt32BE(offset + 6);
+
+		// Total frame = 4 magic + 2 protocol + 4 length + 2 padding + command + terminator
+		//             = 12 + (declaredLength - 1) + 1  [length includes terminator]
+		//             = 12 + declaredLength
+		const frameSize = 12 + declaredLength;
 
 		if (buf.length - offset < frameSize) break; // Incomplete frame, wait for more
 
-		const commandBytes = buf.subarray(offset + 14, offset + frameSize - 1);
+		// Command starts at offset +12, ends before terminator
+		const commandBytes = buf.subarray(offset + 12, offset + frameSize - 1);
 		const command = commandBytes.toString("utf-8").replace(/\n$/, "");
 		messages.push({ raw: false, text: command });
 
