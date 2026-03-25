@@ -21,12 +21,14 @@ Works with a physical Stream Deck (or Stream Deck Mobile) connected to the same 
 
 ## Features
 
-- Single commands - send any console command with one button press
-- Chained commands - run multiple commands at once with `;`
-- Delayed commands - add timed pauses with `;;` or `{NNNms}`
-- Staged buttons - cycle through up to 5 different commands per button
-- Press and release - separate commands for key down and key up
-- Works with both FiveM and RedM
+| Feature | Description |
+|---------|-------------|
+| Single commands | Send any FiveM/RedM console command with one button press |
+| Chained commands | Run multiple commands sequentially with `;` separator |
+| Delayed commands | Add timed pauses between commands with `;;` or `{NNNms}` |
+| Staged buttons | Cycle through up to 5 different commands per button |
+| Press and release | Separate commands for key down and key up events |
+| FiveM and RedM | Works with both games out of the box |
 
 ![Stream Deck with FXCommands](media/sd-preview.png 'FXCommands in action')
 
@@ -105,9 +107,9 @@ See the [Contributing](https://github.com/josh-tf/fxcommands/wiki/Contributing) 
 
 ## Support
 
-[Wiki](https://github.com/josh-tf/fxcommands/wiki) - Full documentation, examples, and guides
-[Troubleshooting](https://github.com/josh-tf/fxcommands/wiki/Troubleshooting-Guide) - Common issues and fixes
-[Issues](https://github.com/josh-tf/fxcommands/issues) - Report a bug or request a feature
+- [Wiki](https://github.com/josh-tf/fxcommands/wiki) - Full documentation, examples, and guides
+- [Troubleshooting](https://github.com/josh-tf/fxcommands/wiki/Troubleshooting-Guide) - Common issues and fixes
+- [Issues](https://github.com/josh-tf/fxcommands/issues) - Report a bug or request a feature
 
 ---
 
