@@ -25,5 +25,6 @@ Thumbs.db
 .env
 .env.*
 
-# Scratch files
+# Development files
 tmp/
+.claude/

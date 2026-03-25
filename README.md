@@ -7,89 +7,65 @@
 
 ![FXCommands](media/fxcommands-banner.png 'FXCommands')
 
+[![CI](https://github.com/josh-tf/fxcommands/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-tf/fxcommands/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md) [![Latest Release](https://img.shields.io/github/v/release/josh-tf/fxcommands)](https://github.com/josh-tf/fxcommands/releases/latest)
+
 # FXCommands
 
-Stream Deck plugin for sending commands to the **FiveM** or **RedM** client console.
+Stream Deck plugin for sending commands to the FiveM or RedM client console.
 
-This plugin works with a **physical Stream Deck** connected to the same PC running FiveM/RedM.
+Works with a physical Stream Deck (or Stream Deck Mobile) connected to the same PC running the game.
 
-> **v2.0** - Rebuilt with the [Elgato Stream Deck SDK 2.0](https://docs.elgato.com/streamdeck/sdk/introduction/getting-started/) (TypeScript/Node.js). Cross-platform build support, same functionality.
+[josh.tf/fxcommands](https://josh.tf/fxcommands) | [Wiki & Docs](https://github.com/josh-tf/fxcommands/wiki)
+
+---
+
+## Features
+
+- Single commands - send any console command with one button press
+- Chained commands - run multiple commands at once with `;`
+- Delayed commands - add timed pauses with `;;` or `{NNNms}`
+- Staged buttons - cycle through up to 5 different commands per button
+- Press and release - separate commands for key down and key up
+- Works with both FiveM and RedM
+
+![Stream Deck with FXCommands](media/sd-preview.png 'FXCommands in action')
 
 ---
 
 ## Getting Started
 
-Available on the **Stream Deck Store**:
-[FXCommands on Stream Deck Marketplace](https://marketplace.elgato.com/product/fxcommands-3c018041-5776-412f-ad1b-1c0da734040b)
+### Stream Deck Marketplace
 
-### Alternative Installation
+[FXCommands on the Stream Deck Store](https://marketplace.elgato.com/product/fxcommands-3c018041-5776-412f-ad1b-1c0da734040b)
 
-1. Download the latest release from the [Releases](https://github.com/josh-tf/fxcommands/releases/) section.
-2. Run the `.streamDeckPlugin` file and accept the **Stream Deck installation prompt**.
+### Manual Installation
+
+1. Download the latest `.streamDeckPlugin` from the [Releases](https://github.com/josh-tf/fxcommands/releases/latest) page
+2. Double-click the file and accept the Stream Deck installation prompt
 
 ---
 
 ## Usage
 
-Drag the **FXCommands Action** onto your Stream Deck and enter the **command** to be executed.
-You can choose to execute a command **on press, on release, or both**.
+Drag the FXCommands Action onto your Stream Deck and enter the command to execute. You can run a command on press, on release, or both.
 
----
-
-## Advanced Usage
-
-### Staged Commands
-
-Under `Advanced Options`, you can set up to **5 stages** for a button.
-Each stage runs a different command, cycling through them before returning to stage 0.
-
-#### Example: Multi-Stage "Me" Commands
-
-- **Stage 0**: `me opens car boot`
-- **Stage 1**: `me inspects boot contents`
-- **Stage 2**: `me finds nothing, closes boot`
-
-Each press advances to the next stage. After Stage 2, the next press resets back to Stage 0.
-
-#### Example: Toggle Emote
-
-- **Stage 0**: `e sit` - Sit down
-- **Stage 1**: `e c` - Cancel emote (stand up)
-
-This creates a **toggle button**: press once to sit, press again to stand.
-
----
-
-### Chained Commands
-
-Commands can be **chained** using the `;` separator.
-For example, a button with:
+### Quick Examples
 
 ```sh
+# Single command
+e wave
+
+# Chained commands (no delay)
 e sit;me relaxes on the ground
-```
 
-Will execute both commands **sequentially** in a single button press.
-
----
-
-### Delayed Commands
-
-Add a delay between commands using `;;` (500ms default) or `{NNNms}` for a custom delay.
-
-```sh
-me sits;{500ms};me stands up
-```
-
-This sends `me sits`, waits 500ms, then sends `me stands up`.
-
-#### Example: Timed Emote
-
-```sh
+# Delayed commands
 e think;me thinking;{2000ms};e c
+
+# Toggle button (2 stages)
+# Stage 0: e sit    Stage 1: e c
 ```
 
-Triggers the `think` emote, waits **2 seconds**, then cancels it - all from a single button press.
+For full syntax reference, examples, and advanced setups see the [Wiki](https://github.com/josh-tf/fxcommands/wiki).
 
 ---
 
@@ -107,9 +83,9 @@ npm install
 npm run build
 ```
 
-The built plugin is output to `dist/`:
+Output:
 - `dist/tf.josh.fxcommands.sdPlugin/` — unpacked plugin
-- `dist/tf.josh.fxcommands.streamDeckPlugin` - installable package
+- `dist/tf.josh.fxcommands.streamDeckPlugin` — installable package
 
 ### Development (watch mode)
 
@@ -120,19 +96,18 @@ npm run watch
 ### Code quality
 
 ```sh
-npm run check      # typecheck + lint
-npm run typecheck   # TypeScript only
-npm run lint        # ESLint only
+npm run check   # typecheck + lint + format + spell + circular deps
 ```
+
+See the [Contributing](https://github.com/josh-tf/fxcommands/wiki/Contributing) guide for full development setup.
 
 ---
 
-## Bugs and Issues
+## Support
 
-**Troubleshooting Guide**:
-[Common Issues & Fixes](https://github.com/josh-tf/fxcommands/wiki/Troubleshooting-Guide)
-
-If you encounter an issue not covered above, please open a **GitHub Issue**.
+[Wiki](https://github.com/josh-tf/fxcommands/wiki) - Full documentation, examples, and guides
+[Troubleshooting](https://github.com/josh-tf/fxcommands/wiki/Troubleshooting-Guide) - Common issues and fixes
+[Issues](https://github.com/josh-tf/fxcommands/issues) - Report a bug or request a feature
 
 ---
 
