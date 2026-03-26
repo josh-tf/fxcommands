@@ -4,6 +4,8 @@
 > 1. Go to the **[Latest Release](https://github.com/josh-tf/fxcommands/releases/latest)**
 > 2. Download the `.streamDeckPlugin` file
 > 3. Double-click the downloaded file to install
+>
+> If you set up your profile on an earlier v2.0 release and your buttons show as "action not found", you can fix your exported profile using the **[Profile Migrator](https://josh.tf/fxcommands/migrate/)** tool.
 
 ![FXCommands](media/fxcommands-banner.png 'FXCommands')
 
