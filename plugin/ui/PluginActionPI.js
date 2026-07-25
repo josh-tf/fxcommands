@@ -42,10 +42,12 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
 }
 
 /**
- * Show/hide the dial-only section based on the action's controller type.
+ * Show/hide the dial-only and key-only sections based on the action's controller type.
  */
 function updateDialVisibility(controller) {
-	document.getElementById("dialSection").style.display = controller === "Encoder" ? "block" : "none";
+	var isEncoder = controller === "Encoder";
+	document.getElementById("dialSection").style.display = isEncoder ? "block" : "none";
+	document.getElementById("keySection").style.display = isEncoder ? "none" : "block";
 }
 
 /**
@@ -65,11 +67,23 @@ function loadSettings(settings) {
 		var releasedEl = document.getElementById("commandReleased" + i);
 		if (pressedEl) pressedEl.value = settings["commandPressed" + i] || "";
 		if (releasedEl) releasedEl.value = settings["commandReleased" + i] || "";
+		document.getElementById("commandPressed" + i + "Response").checked =
+			!!settings["commandPressed" + i + "Response"];
+		document.getElementById("commandReleased" + i + "Response").checked =
+			!!settings["commandReleased" + i + "Response"];
 	}
+
+	document.getElementById("responseLabel").value = settings.responseLabel || "";
+
+	document.getElementById("commandInit").value = settings.commandInit || "";
+	document.getElementById("commandInitRunOnNoResponse").checked = !!settings.commandInitRunOnNoResponse;
 
 	document.getElementById("commandTouch").value = settings.commandTouch || "";
 	document.getElementById("commandRotateLeft").value = settings.commandRotateLeft || "";
 	document.getElementById("commandRotateRight").value = settings.commandRotateRight || "";
+	document.getElementById("commandTouchResponse").checked = !!settings.commandTouchResponse;
+	document.getElementById("commandRotateLeftResponse").checked = !!settings.commandRotateLeftResponse;
+	document.getElementById("commandRotateRightResponse").checked = !!settings.commandRotateRightResponse;
 
 	updateStateVisibility(desiredStates);
 }
@@ -86,11 +100,25 @@ function saveSettings() {
 	for (var i = 0; i < 5; i++) {
 		settings["commandPressed" + i] = document.getElementById("commandPressed" + i).value;
 		settings["commandReleased" + i] = document.getElementById("commandReleased" + i).value;
+		settings["commandPressed" + i + "Response"] = document.getElementById(
+			"commandPressed" + i + "Response"
+		).checked;
+		settings["commandReleased" + i + "Response"] = document.getElementById(
+			"commandReleased" + i + "Response"
+		).checked;
 	}
+
+	settings.responseLabel = document.getElementById("responseLabel").value;
+
+	settings.commandInit = document.getElementById("commandInit").value;
+	settings.commandInitRunOnNoResponse = document.getElementById("commandInitRunOnNoResponse").checked;
 
 	settings.commandTouch = document.getElementById("commandTouch").value;
 	settings.commandRotateLeft = document.getElementById("commandRotateLeft").value;
 	settings.commandRotateRight = document.getElementById("commandRotateRight").value;
+	settings.commandTouchResponse = document.getElementById("commandTouchResponse").checked;
+	settings.commandRotateLeftResponse = document.getElementById("commandRotateLeftResponse").checked;
+	settings.commandRotateRightResponse = document.getElementById("commandRotateRightResponse").checked;
 
 	currentSettings = settings;
 

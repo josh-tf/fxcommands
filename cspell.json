@@ -18,7 +18,8 @@
 		"noEmit",
 		"cmnd",
 		"keypad",
-		"imgs"
+		"imgs",
+		"fxid"
 	],
 	"ignorePaths": ["dist/", "node_modules/", "package-lock.json", "plugin/ui/sdpi.css", "plugin/imgs/"]
 }

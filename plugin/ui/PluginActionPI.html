@@ -28,6 +28,61 @@
 					/>
 				</div>
 			</details>
+			<div class="sdpi-heading">Init Command</div>
+			<div class="sdpi-item">
+				<div class="sdpi-item-label">Get Value</div>
+				<input
+					class="sdpi-item-value"
+					placeholder="e.g. radio_vol"
+					value=""
+					id="commandInit"
+					oninput="saveSettings()"
+				/>
+			</div>
+			<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item-label empty"></div>
+				<div class="sdpi-item-value">
+					<span class="sdpi-item-child">
+						<input id="commandInitRunOnNoResponse" type="checkbox" onchange="saveSettings()" />
+						<label for="commandInitRunOnNoResponse"
+							><span></span>Also run after commands without "Show response"</label
+						>
+					</span>
+				</div>
+			</div>
+			<div class="sdpi-item">
+				<details>
+					<summary>About</summary>
+					<div style="font-size: 11px; opacity: 0.8; padding: 4px 0">
+						<div>
+							Has the same behaviour as "Show response" but is ran when the action appears on the page.
+							Used to ensure the current value is always shown.
+						</div>
+					</div>
+				</details>
+			</div>
+			<div id="keySection">
+				<div class="sdpi-item">
+					<div class="sdpi-item-label">Response Label</div>
+					<input
+						class="sdpi-item-value"
+						placeholder="e.g. Radio\nVolume\n\n{value}"
+						value=""
+						id="responseLabel"
+						oninput="saveSettings()"
+					/>
+				</div>
+				<div class="sdpi-item">
+					<details>
+						<summary>Available placeholders</summary>
+						<div style="font-size: 11px; opacity: 0.8; padding: 4px 0">
+							<div>{value} - captured response</div>
+							<div>\n - line break</div>
+							<div>Leave blank to replace the title with the response text</div>
+						</div>
+					</details>
+				</div>
+			</div>
 			<div id="State0">
 				<div class="sdpi-heading">Command</div>
 				<div class="sdpi-item">
@@ -40,6 +95,15 @@
 						oninput="saveSettings()"
 					/>
 				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandPressed0Response" type="checkbox" onchange="saveSettings()" />
+							<label for="commandPressed0Response"><span></span>Show response</label>
+						</span>
+					</div>
+				</div>
 				<div class="sdpi-item">
 					<div class="sdpi-item-label">On Release</div>
 					<input
@@ -49,6 +113,15 @@
 						id="commandReleased0"
 						oninput="saveSettings()"
 					/>
+				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandReleased0Response" type="checkbox" onchange="saveSettings()" />
+							<label for="commandReleased0Response"><span></span>Show response</label>
+						</span>
+					</div>
 				</div>
 			</div>
 			<div id="State1" style="display: none">
@@ -63,6 +136,15 @@
 						oninput="saveSettings()"
 					/>
 				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandPressed1Response" type="checkbox" onchange="saveSettings()" />
+							<label for="commandPressed1Response"><span></span>Show response</label>
+						</span>
+					</div>
+				</div>
 				<div class="sdpi-item">
 					<div class="sdpi-item-label">On Release</div>
 					<input
@@ -72,6 +154,15 @@
 						id="commandReleased1"
 						oninput="saveSettings()"
 					/>
+				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandReleased1Response" type="checkbox" onchange="saveSettings()" />
+							<label for="commandReleased1Response"><span></span>Show response</label>
+						</span>
+					</div>
 				</div>
 			</div>
 			<div id="State2" style="display: none">
@@ -86,6 +177,15 @@
 						oninput="saveSettings()"
 					/>
 				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandPressed2Response" type="checkbox" onchange="saveSettings()" />
+							<label for="commandPressed2Response"><span></span>Show response</label>
+						</span>
+					</div>
+				</div>
 				<div class="sdpi-item">
 					<div class="sdpi-item-label">On Release</div>
 					<input
@@ -95,6 +195,15 @@
 						id="commandReleased2"
 						oninput="saveSettings()"
 					/>
+				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandReleased2Response" type="checkbox" onchange="saveSettings()" />
+							<label for="commandReleased2Response"><span></span>Show response</label>
+						</span>
+					</div>
 				</div>
 			</div>
 			<div id="State3" style="display: none">
@@ -109,6 +218,15 @@
 						oninput="saveSettings()"
 					/>
 				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandPressed3Response" type="checkbox" onchange="saveSettings()" />
+							<label for="commandPressed3Response"><span></span>Show response</label>
+						</span>
+					</div>
+				</div>
 				<div class="sdpi-item">
 					<div class="sdpi-item-label">On Release</div>
 					<input
@@ -118,6 +236,15 @@
 						id="commandReleased3"
 						oninput="saveSettings()"
 					/>
+				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandReleased3Response" type="checkbox" onchange="saveSettings()" />
+							<label for="commandReleased3Response"><span></span>Show response</label>
+						</span>
+					</div>
 				</div>
 			</div>
 			<div id="State4" style="display: none">
@@ -132,6 +259,15 @@
 						oninput="saveSettings()"
 					/>
 				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandPressed4Response" type="checkbox" onchange="saveSettings()" />
+							<label for="commandPressed4Response"><span></span>Show response</label>
+						</span>
+					</div>
+				</div>
 				<div class="sdpi-item">
 					<div class="sdpi-item-label">On Release</div>
 					<input
@@ -141,6 +277,15 @@
 						id="commandReleased4"
 						oninput="saveSettings()"
 					/>
+				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandReleased4Response" type="checkbox" onchange="saveSettings()" />
+							<label for="commandReleased4Response"><span></span>Show response</label>
+						</span>
+					</div>
 				</div>
 			</div>
 			<div id="dialSection" style="display: none">
@@ -155,6 +300,15 @@
 						oninput="saveSettings()"
 					/>
 				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandTouchResponse" type="checkbox" onchange="saveSettings()" />
+							<label for="commandTouchResponse"><span></span>Show response</label>
+						</span>
+					</div>
+				</div>
 				<div class="sdpi-item">
 					<div class="sdpi-item-label">Rotate Left</div>
 					<input
@@ -164,6 +318,15 @@
 						id="commandRotateLeft"
 						oninput="saveSettings()"
 					/>
+				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandRotateLeftResponse" type="checkbox" onchange="saveSettings()" />
+							<label for="commandRotateLeftResponse"><span></span>Show response</label>
+						</span>
+					</div>
 				</div>
 				<div class="sdpi-item">
 					<div class="sdpi-item-label">Rotate Right</div>
@@ -175,13 +338,22 @@
 						oninput="saveSettings()"
 					/>
 				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandRotateRightResponse" type="checkbox" onchange="saveSettings()" />
+							<label for="commandRotateRightResponse"><span></span>Show response</label>
+						</span>
+					</div>
+				</div>
 				<div class="sdpi-item">
 					<details>
 						<summary>Available placeholders</summary>
 						<div style="font-size: 11px; opacity: 0.8; padding: 4px 0">
-							<div>{ticks} — ticks rotated (negative = left, positive = right)</div>
-							<div>{rotationPercent} — 0–100 rotation percentage</div>
-							<div>{rotationAbsolute} — 0–255 absolute rotation value</div>
+							<div>{ticks} - ticks rotated (negative = left, positive = right)</div>
+							<div>{rotationPercent} - 0-100 rotation percentage</div>
+							<div>{rotationAbsolute} - 0-255 absolute rotation value</div>
 						</div>
 					</details>
 				</div>

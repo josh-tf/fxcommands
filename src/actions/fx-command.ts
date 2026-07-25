@@ -20,16 +20,25 @@ const logger = streamDeck.logger.createScope("FXCommandAction");
 const MAX_STATES = 5;
 const DELAY_MS = 500;
 const ROTATION_MAX = 255;
+const PERCENT_LAYOUT = "$B1";
+const DEFAULT_LAYOUT = "$A1";
+const PERCENT_PATTERN = /^(-?\d+(?:\.\d+)?)\s*%$/;
 
 /** Delay helper. */
 function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function buildLabelTitle(template: string, value: string): string {
+	return template.replace(/\\n/g, "\n").replace(/\{value\}/g, value);
+}
+
 /** Per-state command pair. */
 type CommandAction = {
 	commandPressed: string;
 	commandReleased: string;
+	commandPressedResponse: boolean;
+	commandReleasedResponse: boolean;
 };
 
 /** Settings shape persisted per action instance. */
@@ -38,18 +47,34 @@ type FXCommandSettings = {
 	desiredStates: number;
 	commandPressed0: string;
 	commandReleased0: string;
+	commandPressed0Response: boolean;
+	commandReleased0Response: boolean;
 	commandPressed1: string;
 	commandReleased1: string;
+	commandPressed1Response: boolean;
+	commandReleased1Response: boolean;
 	commandPressed2: string;
 	commandReleased2: string;
+	commandPressed2Response: boolean;
+	commandReleased2Response: boolean;
 	commandPressed3: string;
 	commandReleased3: string;
+	commandPressed3Response: boolean;
+	commandReleased3Response: boolean;
 	commandPressed4: string;
 	commandReleased4: string;
+	commandPressed4Response: boolean;
+	commandReleased4Response: boolean;
 	rotationValue: number;
 	commandRotateLeft: string;
 	commandRotateRight: string;
+	commandRotateLeftResponse: boolean;
+	commandRotateRightResponse: boolean;
 	commandTouch: string;
+	commandTouchResponse: boolean;
+	responseLabel: string;
+	commandInit: string;
+	commandInitRunOnNoResponse: boolean;
 };
 
 function defaultSettings(): FXCommandSettings {
@@ -58,18 +83,34 @@ function defaultSettings(): FXCommandSettings {
 		desiredStates: 1,
 		commandPressed0: "",
 		commandReleased0: "",
+		commandPressed0Response: false,
+		commandReleased0Response: false,
 		commandPressed1: "",
 		commandReleased1: "",
+		commandPressed1Response: false,
+		commandReleased1Response: false,
 		commandPressed2: "",
 		commandReleased2: "",
+		commandPressed2Response: false,
+		commandReleased2Response: false,
 		commandPressed3: "",
 		commandReleased3: "",
+		commandPressed3Response: false,
+		commandReleased3Response: false,
 		commandPressed4: "",
 		commandReleased4: "",
+		commandPressed4Response: false,
+		commandReleased4Response: false,
 		commandTouch: "",
+		commandTouchResponse: false,
 		rotationValue: 0,
 		commandRotateLeft: "",
-		commandRotateRight: ""
+		commandRotateRight: "",
+		commandRotateLeftResponse: false,
+		commandRotateRightResponse: false,
+		responseLabel: "",
+		commandInit: "",
+		commandInitRunOnNoResponse: false
 	};
 }
 
@@ -77,9 +118,13 @@ function defaultSettings(): FXCommandSettings {
 function getCommandAction(settings: FXCommandSettings, stateIndex: number): CommandAction {
 	const pressed = settings[`commandPressed${stateIndex}` as keyof FXCommandSettings] as string;
 	const released = settings[`commandReleased${stateIndex}` as keyof FXCommandSettings] as string;
+	const pressedResponse = settings[`commandPressed${stateIndex}Response` as keyof FXCommandSettings] as boolean;
+	const releasedResponse = settings[`commandReleased${stateIndex}Response` as keyof FXCommandSettings] as boolean;
 	return {
 		commandPressed: pressed || "",
-		commandReleased: released || ""
+		commandReleased: released || "",
+		commandPressedResponse: !!pressedResponse,
+		commandReleasedResponse: !!releasedResponse
 	};
 }
 
@@ -88,6 +133,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	private connectionManager = new ConnectionManager();
 	private states = new Map<string, number>();
 	private rotations = new Map<string, number>();
+	private layouts = new Map<string, string>();
 
 	override async onWillAppear(ev: WillAppearEvent<FXCommandSettings>): Promise<void> {
 		const settings = { ...defaultSettings(), ...ev.payload.settings };
@@ -99,10 +145,17 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (ev.action.isKey()) {
 			await ev.action.setState(currentState);
+			if (settings.responseLabel) {
+				await ev.action.setTitle(buildLabelTitle(settings.responseLabel, ""));
+			}
 		}
 
 		// Pre-connect so the first key press sends immediately
 		await this.connectionManager.connect();
+
+		// Page switches clear any previously displayed value, so re-run the init
+		// command every time the button appears to restore it.
+		await this.runInitCommand(ev.action, settings);
 	}
 
 	/**
@@ -116,7 +169,11 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	 *   "me sits;{500ms};me stands up"   500ms delay with explicit syntax
 	 *   "e sit;{1500ms};me looks;{2000ms};e c"
 	 */
-	private async sendCommand(command: string, vars: Record<string, string | number> = {}): Promise<boolean> {
+	private async sendCommand(
+		command: string,
+		expectResponse: boolean,
+		vars: Record<string, string | number> = {}
+	): Promise<{ success: boolean; response: string | null }> {
 		const substitute = (text: string): string =>
 			text.replace(/\{(\w+)\}/g, (match, key: string) => (key in vars ? String(vars[key]) : match));
 
@@ -139,15 +196,68 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		}
 
 		let success = true;
+		let response: string | null = null;
 		for (const token of tokens) {
 			if (token.type === "delay") {
 				await sleep(token.ms);
 			} else if (token.value) {
-				const sent = await this.connectionManager.send(token.value);
-				if (!sent) success = false;
+				if (expectResponse) {
+					const result = await this.connectionManager.sendWithToken(token.value);
+					if (!result.sent) success = false;
+					if (result.response) response = result.response;
+				} else {
+					const sent = await this.connectionManager.send(token.value);
+					if (!sent) success = false;
+				}
 			}
 		}
-		return success;
+		return { success, response };
+	}
+
+	/**
+	 * Show a captured console response on the action: dial feedback value, or key title.
+	 * For key actions, `responseLabel` may contain a {value} placeholder to show the
+	 * response alongside static text (e.g. "Vol: {value}"); otherwise the title is
+	 * replaced with the raw response.
+	 */
+	private async showResponse(
+		action: KeyAction<FXCommandSettings> | DialAction<FXCommandSettings>,
+		response: string | null,
+		responseLabel: string
+	): Promise<void> {
+		if (!response) return;
+		if (action.isDial()) {
+			const match = response.match(PERCENT_PATTERN);
+			if (match) {
+				const percent = Math.min(100, Math.max(0, parseFloat(match[1])));
+				await this.setDialLayout(action, PERCENT_LAYOUT);
+				await action.setFeedback({ value: response, indicator: percent });
+			} else {
+				await this.setDialLayout(action, DEFAULT_LAYOUT);
+				await action.setFeedback({ value: response });
+			}
+		} else {
+			const title = buildLabelTitle(responseLabel || "{value}", response);
+			await action.setTitle(title);
+		}
+	}
+
+	private async setDialLayout(action: DialAction<FXCommandSettings>, layout: string): Promise<void> {
+		if (this.layouts.get(action.id) === layout) return;
+		this.layouts.set(action.id, layout);
+		await action.setFeedbackLayout(layout);
+	}
+
+	/**
+	 * Run the init/refresh command and display its response.
+	 */
+	private async runInitCommand(
+		action: KeyAction<FXCommandSettings> | DialAction<FXCommandSettings>,
+		settings: FXCommandSettings
+	): Promise<void> {
+		if (!settings.commandInit) return;
+		const { response } = await this.sendCommand(settings.commandInit, true);
+		await this.showResponse(action, response, settings.responseLabel);
 	}
 
 	private async handlePress(
@@ -160,8 +270,13 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (cmd.commandPressed) {
 			logger.debug(`Press [${currentState}]: ${cmd.commandPressed}`);
-			const ok = await this.sendCommand(cmd.commandPressed);
-			if (!ok) await action.showAlert();
+			const { success, response } = await this.sendCommand(cmd.commandPressed, cmd.commandPressedResponse);
+			if (!success) await action.showAlert();
+			if (cmd.commandPressedResponse) {
+				await this.showResponse(action, response, settings.responseLabel);
+			} else if (settings.commandInitRunOnNoResponse) {
+				await this.runInitCommand(action, settings);
+			}
 		}
 	}
 
@@ -175,8 +290,13 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (cmd.commandReleased) {
 			logger.debug(`Release [${currentState}]: ${cmd.commandReleased}`);
-			const ok = await this.sendCommand(cmd.commandReleased);
-			if (!ok) await action.showAlert();
+			const { success, response } = await this.sendCommand(cmd.commandReleased, cmd.commandReleasedResponse);
+			if (!success) await action.showAlert();
+			if (cmd.commandReleasedResponse) {
+				await this.showResponse(action, response, settings.responseLabel);
+			} else if (settings.commandInitRunOnNoResponse) {
+				await this.runInitCommand(action, settings);
+			}
 		}
 
 		// Advance to next state
@@ -218,10 +338,20 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		this.rotations.set(ev.action.id, rotationAbsolute);
 
 		const template = ticks < 0 ? settings.commandRotateLeft : settings.commandRotateRight;
+		const expectResponse = ticks < 0 ? settings.commandRotateLeftResponse : settings.commandRotateRightResponse;
 		if (template) {
 			logger.debug(`DialRotate [${ticks}]: ${template}`);
-			const ok = await this.sendCommand(template, { ticks, rotationPercent, rotationAbsolute });
-			if (!ok) await ev.action.showAlert();
+			const { success, response } = await this.sendCommand(template, expectResponse, {
+				ticks,
+				rotationPercent,
+				rotationAbsolute
+			});
+			if (!success) await ev.action.showAlert();
+			if (expectResponse) {
+				await this.showResponse(ev.action, response, settings.responseLabel);
+			} else if (settings.commandInitRunOnNoResponse) {
+				await this.runInitCommand(ev.action, settings);
+			}
 		}
 
 		settings.rotationValue = rotationAbsolute;
@@ -233,8 +363,13 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (settings.commandTouch) {
 			logger.debug(`TouchTap: ${settings.commandTouch}`);
-			const ok = await this.sendCommand(settings.commandTouch);
-			if (!ok) await ev.action.showAlert();
+			const { success, response } = await this.sendCommand(settings.commandTouch, settings.commandTouchResponse);
+			if (!success) await ev.action.showAlert();
+			if (settings.commandTouchResponse) {
+				await this.showResponse(ev.action, response, settings.responseLabel);
+			} else if (settings.commandInitRunOnNoResponse) {
+				await this.runInitCommand(ev.action, settings);
+			}
 		}
 	}
 
@@ -247,5 +382,6 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	override async onWillDisappear(ev: WillDisappearEvent<FXCommandSettings>): Promise<void> {
 		this.states.delete(ev.action.id);
 		this.rotations.delete(ev.action.id);
+		this.layouts.delete(ev.action.id);
 	}
 }
