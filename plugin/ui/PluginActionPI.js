@@ -5,8 +5,12 @@ let currentSettings = {};
 /**
  * Called by Stream Deck when the Property Inspector loads.
  */
-function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegisterEvent, _inInfo, _inActionInfo) {
+function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegisterEvent, _inInfo, inActionInfo) {
 	uuid = inPropertyInspectorUUID;
+
+	var actionInfo = typeof inActionInfo === "string" ? JSON.parse(inActionInfo) : inActionInfo;
+	var controller = actionInfo && actionInfo.payload && actionInfo.payload.controller;
+	updateDialVisibility(controller);
 
 	websocket = new WebSocket("ws://127.0.0.1:" + inPort);
 
@@ -29,9 +33,19 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
 	websocket.onmessage = function (evt) {
 		const data = JSON.parse(evt.data);
 		if (data.event === "didReceiveSettings") {
+			if (data.payload && data.payload.controller) {
+				updateDialVisibility(data.payload.controller);
+			}
 			loadSettings(data.payload.settings);
 		}
 	};
+}
+
+/**
+ * Show/hide the dial-only section based on the action's controller type.
+ */
+function updateDialVisibility(controller) {
+	document.getElementById("dialSection").style.display = controller === "Encoder" ? "block" : "none";
 }
 
 /**
@@ -53,6 +67,10 @@ function loadSettings(settings) {
 		if (releasedEl) releasedEl.value = settings["commandReleased" + i] || "";
 	}
 
+	document.getElementById("commandTouch").value = settings.commandTouch || "";
+	document.getElementById("commandRotateLeft").value = settings.commandRotateLeft || "";
+	document.getElementById("commandRotateRight").value = settings.commandRotateRight || "";
+
 	updateStateVisibility(desiredStates);
 }
 
@@ -69,6 +87,10 @@ function saveSettings() {
 		settings["commandPressed" + i] = document.getElementById("commandPressed" + i).value;
 		settings["commandReleased" + i] = document.getElementById("commandReleased" + i).value;
 	}
+
+	settings.commandTouch = document.getElementById("commandTouch").value;
+	settings.commandRotateLeft = document.getElementById("commandRotateLeft").value;
+	settings.commandRotateRight = document.getElementById("commandRotateRight").value;
 
 	currentSettings = settings;
 

@@ -143,6 +143,49 @@
 					/>
 				</div>
 			</div>
+			<div id="dialSection" style="display: none">
+				<div class="sdpi-heading">Dial</div>
+				<div class="sdpi-item">
+					<div class="sdpi-item-label">Touch</div>
+					<input
+						class="sdpi-item-value"
+						placeholder="e.g. radio_vol"
+						value=""
+						id="commandTouch"
+						oninput="saveSettings()"
+					/>
+				</div>
+				<div class="sdpi-item">
+					<div class="sdpi-item-label">Rotate Left</div>
+					<input
+						class="sdpi-item-value"
+						placeholder="e.g. radio_voldown"
+						value=""
+						id="commandRotateLeft"
+						oninput="saveSettings()"
+					/>
+				</div>
+				<div class="sdpi-item">
+					<div class="sdpi-item-label">Rotate Right</div>
+					<input
+						class="sdpi-item-value"
+						placeholder="e.g. radio_volup"
+						value=""
+						id="commandRotateRight"
+						oninput="saveSettings()"
+					/>
+				</div>
+				<div class="sdpi-item">
+					<details>
+						<summary>Available placeholders</summary>
+						<div style="font-size: 11px; opacity: 0.8; padding: 4px 0">
+							<div>{ticks} — ticks rotated (negative = left, positive = right)</div>
+							<div>{rotationPercent} — 0–100 rotation percentage</div>
+							<div>{rotationAbsolute} — 0–255 absolute rotation value</div>
+						</div>
+					</details>
+				</div>
+			</div>
 		</div>
 		<script src="PluginActionPI.js"></script>
 	</body>

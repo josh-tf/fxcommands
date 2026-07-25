@@ -35,7 +35,16 @@
 			"UUID": "tf.josh.fxcommands",
 			"Tooltip": "Send commands to a local FiveM or RedM client",
 			"PropertyInspectorPath": "ui/PluginActionPI.html",
-			"Controllers": ["Keypad"]
+			"Controllers": ["Keypad", "Encoder"],
+			"Encoder": {
+				"Icon": "imgs/icon",
+				"layout": "$A1",
+				"TriggerDescription": {
+					"Push": "Send command",
+					"Rotate": "Send command",
+					"Touch": "Send command"
+				}
+			}
 		}
 	],
 	"Author": "josh-tf",
