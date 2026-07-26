@@ -30,6 +30,7 @@ Works with a physical Stream Deck (or Stream Deck Mobile) connected to the same 
 | Delayed commands | Add timed pauses between commands with `;;` or `{NNNms}` |
 | Staged buttons | Cycle through up to 5 different commands per button |
 | Press and release | Separate commands for key down and key up events |
+| Dials (Stream Deck+) | Separate commands for push, rotate left/right, and screen tap |
 | FiveM and RedM | Works with both games out of the box |
 
 ![Stream Deck with FXCommands](media/sd-preview.png 'FXCommands in action')
@@ -68,6 +69,40 @@ e think;me thinking;{2000ms};e c
 # Toggle button (2 stages)
 # Stage 0: e sit    Stage 1: e c
 ```
+
+### Dials (Stream Deck+)
+
+Drop the action onto the dial row of a Stream Deck+ and the Property Inspector gains a **Dial**
+section with three extra commands. Pushing the dial uses the same **Command** / **On Release**
+fields as a key, so a dial can also cycle through stages.
+
+| Trigger | Field | Runs when |
+|---------|-------|-----------|
+| Push | Command / On Release | The dial is pressed and released |
+| Rotate left | Rotate Left | The dial turns anticlockwise |
+| Rotate right | Rotate Right | The dial turns clockwise |
+| Touch | Touch | The touch strip above the dial is tapped |
+
+Rotation commands support placeholders that are substituted before the command is sent:
+
+| Placeholder | Value |
+|-------------|-------|
+| `{ticks}` | Detents moved this event — negative left, positive right |
+| `{rotationPercent}` | Running position as `0`–`100` |
+| `{rotationAbsolute}` | Running position as `0`–`255` |
+
+```sh
+# Send the raw detent delta, letting the server apply it
+radio_volume_adjust {ticks}
+
+# Send an absolute target the server can set directly
+radio_volume_set {rotationPercent}
+```
+
+> [!NOTE]
+> `{rotationPercent}` and `{rotationAbsolute}` track a counter held by the plugin, not the game's
+> real value. It starts at `0`, is clamped to `0`–`255`, and will drift if something changes the
+> value in-game. Prefer `{ticks}` unless your server echoes its state back.
 
 For full syntax reference, examples, and advanced setups see the [Wiki](https://github.com/josh-tf/fxcommands/wiki).
 
