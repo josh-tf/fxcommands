@@ -30,13 +30,13 @@ running the game.
 
 ---
 
-## Getting Started
+## Get started
 
 ### Stream Deck Marketplace
 
 [FXCommands on the Stream Deck Store](https://marketplace.elgato.com/product/fxcommands-3c018041-5776-412f-ad1b-1c0da734040b)
 
-### Manual Installation
+### Manual installation
 
 1. Download the latest `.streamDeckPlugin` from the [Releases](https://github.com/josh-tf/fxcommands/releases/latest) page
 2. Double-click the file and accept the Stream Deck installation prompt
@@ -47,7 +47,7 @@ running the game.
 
 Drag the FXCommands Action onto your Stream Deck and enter the command to execute. You can run a command on press, on release, or both.
 
-### Quick Examples
+### Quick examples
 
 ```sh
 # Single command
@@ -105,22 +105,10 @@ count, anything you can `print`. It needs a change on the server, so it stays ou
 you ask for it: tick **Enable command responses** in **Advanced Settings**, and the per-command
 **Show response** checkboxes appear.
 
-#### How it works
-
-When **Show response** is ticked, FXCommands appends a short correlation token to the command:
-
-```
-radio_voldown @fxid:ab12cd34
-```
-
-It then watches the console for a line **containing that same token**, strips the token out, and
-shows what's left. The token exists so that pressing several buttons at once doesn't cross wires.
-If nothing matches before the response timeout, the button is left unchanged.
-
-#### Server-side handler
-
-Your command needs to pull the token off the end of its arguments and echo it back with the value.
-Client-side Lua:
+When **Show response** is ticked, FXCommands appends a short correlation token such as
+`@fxid:ab12cd34` to the command, then watches the console for a line containing that token and
+shows the rest of the line on the button title or dial. Your command handler has to strip the token
+and print it back on the same line as the value. Client-side Lua:
 
 ```lua
 RegisterCommand('radio_voldown', function(source, args)
@@ -137,48 +125,13 @@ RegisterCommand('radio_voldown', function(source, args)
 end)
 ```
 
-> [!IMPORTANT]
-> Print the token on the **same line** as the value. Its position doesn't matter, it's stripped
-> out and whatever remains is displayed. Print nothing else on that line.
-
 > [!CAUTION]
 > Only tick **Show response** for commands whose handler strips the token, as shown above. Any
 > other command will receive `@fxid:...` as an unexpected extra argument.
 
-#### Displaying the value
-
-| Control | Where the value appears |
-|---------|-------------------------|
-| Key | The button title |
-| Dial | The touch-strip value field |
-
-For keys, **Response Label** controls the formatting. Use `{value}` for the response, press Enter
-for a line break, and leave it blank to replace the title with the raw response.
-
-```
-Volume
-
-{value}
-```
-
-On a dial, a response formatted as a **percentage** additionally draws a progress bar. Print a
-trailing `%` to opt in. `60%` shows the bar, `60` shows the value alone.
-
-```lua
-print(("%s %d%%"):format(sdToken, volume))
-```
-
-#### Init command
-
-**Get Value** runs whenever the button appears (plugin start, profile load, page switch) so the
-button shows the current value instead of a stale one. It captures a response the same way, so its
-handler needs the same token handling.
-
-Tick **Also run after commands without "Show response"** to re-read the value after any command on
-that button, which is useful when the command that changes a value isn't the one that reports it.
-
-**Response Timeout** in Advanced Settings controls how long to wait, defaulting to 1500ms. The
-ceiling is 5000ms because the FiveM client drops the connection after five seconds of inactivity.
+Response labels, the dial progress bar, the **Get Value** init command and the response timeout
+are covered on the [Command Responses](https://github.com/josh-tf/fxcommands/wiki/Command-Responses)
+wiki page.
 
 For full syntax reference, examples, and advanced setups see the [Wiki](https://github.com/josh-tf/fxcommands/wiki).
 
@@ -202,7 +155,7 @@ Output:
 - `dist/tf.josh.fxcommands.sdPlugin/` unpacked plugin
 - `dist/tf.josh.fxcommands.streamDeckPlugin` installable package
 
-### Development (watch mode)
+### Watch mode
 
 ```sh
 npm run watch
@@ -211,7 +164,7 @@ npm run watch
 ### Code quality
 
 ```sh
-npm run check   # typecheck + lint + format + spell + circular deps
+npm run check   # version check + typecheck + lint + format + spell + circular deps + unused code
 ```
 
 ### Console emulator

@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 josh-tf
+Copyright (c) 2026 Josh Bowden
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
