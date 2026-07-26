@@ -1,5 +1,4 @@
 {
 	"entry": ["src/plugin.ts"],
-	"project": ["src/**/*.ts"],
-	"ignoreDependencies": ["@elgato/cli"]
+	"project": ["src/**/*.ts"]
 }
