@@ -21,6 +21,7 @@ const MAX_STATES = 5;
 const DELAY_MS = 500;
 const ROTATION_MAX = 255;
 const ROTATION_PERSIST_MS = 400;
+const INIT_REFRESH_MS = 300;
 const PERCENT_LAYOUT = "$B1";
 const DEFAULT_LAYOUT = "$A1";
 const PERCENT_PATTERN = /^(100(?:\.0+)?|\d{1,2}(?:\.\d+)?)\s*%$/;
@@ -138,6 +139,27 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	private rotations = new Map<string, number>();
 	private layouts = new Map<string, string>();
 	private rotationPersists = new Map<string, { timer: ReturnType<typeof setTimeout>; flush: () => void }>();
+	private initRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
+	private responseSeq = new Map<string, number>();
+
+	/**
+	 * Run the init command once a burst of dial movement settles, so a fast spin
+	 * costs one refresh rather than one command (and one capture window) per detent.
+	 */
+	private scheduleInitRefresh(
+		action: KeyAction<FXCommandSettings> | DialAction<FXCommandSettings>,
+		settings: FXCommandSettings
+	): void {
+		const existing = this.initRefreshTimers.get(action.id);
+		if (existing) clearTimeout(existing);
+
+		const timer = setTimeout(() => {
+			this.initRefreshTimers.delete(action.id);
+			void this.runInitCommand(action, settings);
+		}, INIT_REFRESH_MS);
+
+		this.initRefreshTimers.set(action.id, timer);
+	}
 
 	/**
 	 * Persist the rotation value once a burst of dial movement settles.
@@ -365,16 +387,26 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		const expectResponse = ticks < 0 ? settings.commandRotateLeftResponse : settings.commandRotateRightResponse;
 		if (template) {
 			logger.debug(`DialRotate [${ticks}]: ${template}`);
+
+			// Rotate events arrive in bursts and each send is awaited, so several can be
+			// in flight at once. Stamp this one and drop its response if a newer rotate
+			// has started, otherwise a slow reply can overwrite a fresher value.
+			const seq = (this.responseSeq.get(ev.action.id) ?? 0) + 1;
+			this.responseSeq.set(ev.action.id, seq);
+
 			const { success, response } = await this.sendCommand(template, expectResponse, {
 				ticks,
 				rotationPercent,
 				rotationAbsolute
 			});
 			if (!success) await ev.action.showAlert();
+
+			const isLatest = this.responseSeq.get(ev.action.id) === seq;
 			if (expectResponse) {
-				await this.showResponse(ev.action, response, settings.responseLabel);
+				if (isLatest) await this.showResponse(ev.action, response, settings.responseLabel);
 			} else if (settings.commandInitRunOnNoResponse) {
-				await this.runInitCommand(ev.action, settings);
+				// Coalesce the refresh: a fast spin should cost one init command, not one per detent.
+				this.scheduleInitRefresh(ev.action, settings);
 			}
 		}
 
@@ -411,8 +443,15 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 			pending.flush();
 		}
 
+		const pendingInit = this.initRefreshTimers.get(ev.action.id);
+		if (pendingInit) {
+			clearTimeout(pendingInit);
+			this.initRefreshTimers.delete(ev.action.id);
+		}
+
 		this.states.delete(ev.action.id);
 		this.rotations.delete(ev.action.id);
 		this.layouts.delete(ev.action.id);
+		this.responseSeq.delete(ev.action.id);
 	}
 }
