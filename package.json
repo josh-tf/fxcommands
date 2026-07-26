@@ -27,7 +27,7 @@
 		"release": "bash scripts/release.sh"
 	},
 	"dependencies": {
-		"@elgato/streamdeck": "^2.0.0"
+		"@elgato/streamdeck": "^2.1.0"
 	},
 	"devDependencies": {
 		"@elgato/cli": "^1.0.0",
