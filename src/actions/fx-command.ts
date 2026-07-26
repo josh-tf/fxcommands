@@ -78,7 +78,7 @@ type FXCommandSettings = {
 	commandInit: string;
 	commandInitRunOnNoResponse: boolean;
 	responseTimeoutMs: number;
-	/** Property Inspector only: hides the response controls. Absent on configs predating it. */
+	/** Advanced Settings: gates every response feature, including the init command. Off by default. */
 	responsesEnabled: boolean;
 	/** Advanced Settings: gates the console IP/port overrides below. */
 	customServerEnabled: boolean;

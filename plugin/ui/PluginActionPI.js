@@ -77,18 +77,6 @@ function updateServerVisibility() {
 	}
 }
 
-/** Configs made before the toggle existed should keep showing their settings. */
-function hasAnyResponseSetting(settings) {
-	if (settings.commandInit || settings.responseLabel || settings.commandInitRunOnNoResponse) return true;
-	if (settings.commandTouchResponse || settings.commandRotateLeftResponse || settings.commandRotateRightResponse) {
-		return true;
-	}
-	for (var i = 0; i < 5; i++) {
-		if (settings["commandPressed" + i + "Response"] || settings["commandReleased" + i + "Response"]) return true;
-	}
-	return false;
-}
-
 /**
  * Populate UI fields from settings.
  */
