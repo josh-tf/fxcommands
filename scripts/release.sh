@@ -39,7 +39,9 @@ if [ -n "$(git status --porcelain)" ]; then
 	exit 1
 fi
 
-git fetch origin main --tags --quiet
+# --force --prune-tags: a local tag that diverged from origin would otherwise make
+# this fetch exit non-zero, and under `set -e` the script would die with no output.
+git fetch origin main --tags --force --prune-tags
 
 if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
 	echo "Error: local main is not in sync with origin/main — pull or push first"
@@ -47,16 +49,19 @@ if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
 fi
 
 # origin is authoritative — it's what CI checks before creating a release.
-# A local-only tag is usually debris from an abandoned release attempt, so warn
-# rather than block, but make it visible since CI will push over the name.
 if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
 	echo "Error: ${TAG} is already released on origin"
 	exit 1
 fi
 
+# A local-only tag is debris from an abandoned attempt. Refuse rather than warn:
+# CI will create ${TAG} at the real commit, leaving the local tag pointing
+# somewhere else, so `git checkout ${TAG}` would build a tree that never shipped.
 if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
-	echo "Warning: local tag ${TAG} exists but origin does not have it."
-	echo "         Leftover from an abandoned release? Delete with: git tag -d ${TAG}"
+	echo "Error: local tag ${TAG} exists but origin does not have it."
+	echo "       Leftover from an abandoned release attempt. Delete it first:"
+	echo "         git tag -d ${TAG}"
+	exit 1
 fi
 
 CURRENT=$(node -p "require('./package.json').version")
