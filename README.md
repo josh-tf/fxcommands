@@ -15,7 +15,8 @@
 
 Stream Deck plugin for sending commands to the FiveM or RedM client console.
 
-Works with a physical Stream Deck (or Stream Deck Mobile) connected to the same PC running the game.
+Works with a physical Stream Deck, Stream Deck + or Stream Deck Mobile connected to the same PC
+running the game.
 
 [josh.tf/fxcommands](https://josh.tf/fxcommands) | [Wiki & Docs](https://github.com/josh-tf/fxcommands/wiki)
 
@@ -30,7 +31,7 @@ Works with a physical Stream Deck (or Stream Deck Mobile) connected to the same 
 | Delayed commands | Add timed pauses between commands with `;;` or `{NNNms}` |
 | Staged buttons | Cycle through up to 5 different commands per button |
 | Press and release | Separate commands for key down and key up events |
-| Dials (Stream Deck+) | Separate commands for push, rotate left/right, and screen tap |
+| Dials (Stream Deck +) | Separate commands for push, rotate left/right, and screen tap |
 | FiveM and RedM | Works with both games out of the box |
 
 ![Stream Deck with FXCommands](media/sd-preview.png 'FXCommands in action')
@@ -70,9 +71,9 @@ e think;me thinking;{2000ms};e c
 # Stage 0: e sit    Stage 1: e c
 ```
 
-### Dials (Stream Deck+)
+### Dials (Stream Deck +)
 
-Drop the action onto the dial row of a Stream Deck+ and the Property Inspector gains a **Dial**
+Drop the action onto the dial row of a Stream Deck + and the Property Inspector gains a **Dial**
 section with three extra commands. Pushing the dial uses the same **Command** / **On Release**
 fields as a key, so a dial can also cycle through stages.
 
