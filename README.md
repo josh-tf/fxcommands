@@ -32,6 +32,7 @@ running the game.
 | Staged buttons | Cycle through up to 5 different commands per button |
 | Press and release | Separate commands for key down and key up events |
 | Dials (Stream Deck +) | Separate commands for push, rotate left/right, and screen tap |
+| Command responses | Show a value returned by your server on the button or dial |
 | FiveM and RedM | Works with both games out of the box |
 
 ![Stream Deck with FXCommands](media/sd-preview.png 'FXCommands in action')
@@ -105,6 +106,85 @@ radio_volume_set {rotationPercent}
 > real value. It starts at `0`, is clamped to `0`–`255`, and will drift if something changes the
 > value in-game. Prefer `{ticks}` unless your server echoes its state back.
 
+### Command responses
+
+A button can display a value your server sends back — current radio volume, fuel level, on-duty
+count, anything you can `print`. This is **opt-in per command** via the **Show response** checkbox,
+because enabling it changes what your server receives.
+
+#### How it works
+
+When **Show response** is ticked, FXCommands appends a short correlation token to the command:
+
+```
+radio_voldown @fxid:ab12cd34
+```
+
+It then watches the console for a line **containing that same token**, strips the token out, and
+shows what's left. The token exists so that pressing several buttons at once doesn't cross wires.
+If nothing matches before the response timeout, the button is left unchanged.
+
+#### Server-side handler
+
+Your command needs to pull the token off the end of its arguments and echo it back with the value.
+Client-side Lua:
+
+```lua
+RegisterCommand('radio_voldown', function(source, args)
+    local sdToken = nil
+    if args[#args] and args[#args]:match("^@fxid:") then
+        sdToken = table.remove(args)
+    end
+
+    -- Regular command logic here
+
+    if sdToken then
+        print(("%s %s"):format(sdToken, "60.0"))
+    end
+end)
+```
+
+> [!IMPORTANT]
+> Print the token on the **same line** as the value. Its position doesn't matter — it's stripped
+> out and whatever remains is displayed. Print nothing else on that line.
+
+> [!CAUTION]
+> Only tick **Show response** for commands whose handler strips the token, as shown above. Any
+> other command will receive `@fxid:...` as an unexpected extra argument.
+
+#### Displaying the value
+
+| Control | Where the value appears |
+|---------|-------------------------|
+| Key | The button title |
+| Dial | The touch-strip value field |
+
+For keys, **Response Label** controls the formatting. Use `{value}` for the response and `\n` for a
+line break; leave it blank to replace the title with the raw response.
+
+```sh
+Radio\nVolume\n\n{value}
+```
+
+On a dial, a response formatted as a **percentage** additionally draws a progress bar. Print a
+trailing `%` to opt in — `60%` shows the bar, `60` shows the value alone.
+
+```lua
+print(("%s %d%%"):format(sdToken, volume))
+```
+
+#### Init command
+
+**Get Value** runs whenever the button appears — plugin start, profile load, page switch — so the
+button shows the current value instead of a stale one. It captures a response the same way, so its
+handler needs the same token handling.
+
+Tick **Also run after commands without "Show response"** to re-read the value after any command on
+that button, which is useful when the command that changes a value isn't the one that reports it.
+
+**Response Timeout** in Advanced Settings controls how long to wait, defaulting to 1500ms. The
+ceiling is 5000ms because the FiveM client drops the connection after five seconds of inactivity.
+
 For full syntax reference, examples, and advanced setups see the [Wiki](https://github.com/josh-tf/fxcommands/wiki).
 
 ---
@@ -137,6 +217,21 @@ npm run watch
 
 ```sh
 npm run check   # typecheck + lint + format + spell + circular deps
+```
+
+### Console emulator
+
+`scripts/fivem-emulator.cjs` stands in for the game so the plugin can be exercised without FiveM
+running. It decodes the commands the plugin sends, answers the handshake, and replies to any
+command carrying an `@fxid:` token so command responses can be tested end to end.
+
+```sh
+node scripts/fivem-emulator.cjs            # echo commands, reply with a simulated value
+node scripts/fivem-emulator.cjs --percent  # reply as "60%" to exercise the dial bar layout
+node scripts/fivem-emulator.cjs --drop     # never reply, to exercise the capture timeout
+node scripts/fivem-emulator.cjs --garbage  # prefix replies with junk, to exercise frame resync
+node scripts/fivem-emulator.cjs --split    # split replies across TCP chunks
+node scripts/fivem-emulator.cjs --delay=2000 --value=75
 ```
 
 See the [Contributing](https://github.com/josh-tf/fxcommands/wiki/Contributing) guide for full development setup.

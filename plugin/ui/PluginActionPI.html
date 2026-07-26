@@ -8,6 +8,13 @@
 		/>
 		<title>FXCommands Settings</title>
 		<link rel="stylesheet" href="sdpi.css" />
+		<style>
+			.fx-help {
+				font-size: 11px;
+				opacity: 0.8;
+				padding: 4px 0;
+			}
+		</style>
 	</head>
 	<body>
 		<div class="sdpi-wrapper">
@@ -23,16 +30,14 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item">
-					<details>
-						<summary>Available placeholders</summary>
-						<div style="font-size: 11px; opacity: 0.8; padding: 4px 0">
-							<div>{value} - captured response</div>
-							<div>\n - line break</div>
-							<div>Leave blank to replace the title with the response text</div>
-						</div>
-					</details>
-				</div>
+				<details>
+					<summary>Available placeholders</summary>
+					<div class="fx-help">
+						<div>{value} — captured response</div>
+						<div>\n — line break</div>
+						<div>Leave blank to replace the title with the response text</div>
+					</div>
+				</details>
 			</div>
 			<details>
 				<summary>Advanced Settings</summary>
@@ -87,17 +92,15 @@
 					</span>
 				</div>
 			</div>
-			<div class="sdpi-item">
-				<details>
-					<summary>About</summary>
-					<div style="font-size: 11px; opacity: 0.8; padding: 4px 0">
-						<div>
-							Has the same behavior as "Show response" but is run when the action appears on the page.
-							Used to ensure the current value is always shown.
-						</div>
+			<details>
+				<summary>About</summary>
+				<div class="fx-help">
+					<div>
+						Has the same behavior as "Show response" but is run when the action appears on the page. Used to
+						ensure the current value is always shown.
 					</div>
-				</details>
-			</div>
+				</div>
+			</details>
 			<div id="State0">
 				<div class="sdpi-heading">Command</div>
 				<div class="sdpi-item">
@@ -362,16 +365,14 @@
 						</span>
 					</div>
 				</div>
-				<div class="sdpi-item">
-					<details>
-						<summary>Available placeholders</summary>
-						<div style="font-size: 11px; opacity: 0.8; padding: 4px 0">
-							<div>{ticks} - ticks rotated (negative = left, positive = right)</div>
-							<div>{rotationPercent} - 0-100 rotation percentage</div>
-							<div>{rotationAbsolute} - 0-255 absolute rotation value</div>
-						</div>
-					</details>
-				</div>
+				<details>
+					<summary>Available placeholders</summary>
+					<div class="fx-help">
+						<div>{ticks} — ticks rotated (negative = left, positive = right)</div>
+						<div>{rotationPercent} — 0–100 rotation percentage</div>
+						<div>{rotationAbsolute} — 0–255 absolute rotation value</div>
+					</div>
+				</details>
 			</div>
 		</div>
 		<script src="PluginActionPI.js"></script>
