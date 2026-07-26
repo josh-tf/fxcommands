@@ -10,38 +10,61 @@
 		<link rel="stylesheet" href="sdpi.css" />
 	</head>
 	<body>
-		<div class="sdpi-wrapper">
-			<details>
-				<summary>Advanced Settings</summary>
+		<summary class="sdpi-wrapper">
+			<div class="sdpi-heading">General</div>
+			<div id="keySection">
 				<div class="sdpi-item">
-					<div class="sdpi-item-label">Response Timeout (ms)</div>
+					<div class="sdpi-item-label">Response Label</div>
 					<input
 						class="sdpi-item-value"
-						type="number"
-						placeholder="1500"
-						value="1500"
-						id="responseTimeoutMs"
-						min="1"
-						max="5000"
-						pattern="[0-9]{1,4}"
-						onchange="saveSettings()"
+						placeholder="e.g. Radio\nVolume\n\n{value}"
+						value=""
+						id="responseLabel"
+						oninput="saveSettings()"
 					/>
 				</div>
 				<div class="sdpi-item">
-					<div class="sdpi-item-label">No. of states (Max 5)</div>
-					<input
-						class="sdpi-item-value"
-						type="number"
-						placeholder="1"
-						value="1"
-						id="desiredStates"
-						min="1"
-						max="5"
-						pattern="[0-9]{1,2}"
-						onchange="setDesiredState()"
-					/>
+					<details>
+						<summary>Available placeholders</summary>
+						<div style="font-size: 11px; opacity: 0.8; padding: 4px 0">
+							<div>{value} - captured response</div>
+							<div>\n - line break</div>
+							<div>Leave blank to replace the title with the response text</div>
+						</div>
+					</details>
 				</div>
-			</details>
+			</div>
+            <details>
+                <summary>Advanced Settings</summary>
+                <div class="sdpi-item">
+                    <div class="sdpi-item-label">Response Timeout (ms)</div>
+                    <input
+                        class="sdpi-item-value"
+                        type="number"
+                        placeholder="1500"
+                        value="1500"
+                        id="responseTimeoutMs"
+                        min="1"
+                        max="5000"
+                        pattern="[0-9]{1,4}"
+                        onchange="saveSettings()"
+                    />
+                </div>
+                <div class="sdpi-item">
+                    <div class="sdpi-item-label">No. of states (Max 5)</div>
+                    <input
+                        class="sdpi-item-value"
+                        type="number"
+                        placeholder="1"
+                        value="1"
+                        id="desiredStates"
+                        min="1"
+                        max="5"
+                        pattern="[0-9]{1,2}"
+                        onchange="setDesiredState()"
+                    />
+                </div>
+            </details>
 			<div class="sdpi-heading">Init Command</div>
 			<div class="sdpi-item">
 				<div class="sdpi-item-label">Get Value</div>
@@ -74,28 +97,6 @@
 						</div>
 					</div>
 				</details>
-			</div>
-			<div id="keySection">
-				<div class="sdpi-item">
-					<div class="sdpi-item-label">Response Label</div>
-					<input
-						class="sdpi-item-value"
-						placeholder="e.g. Radio\nVolume\n\n{value}"
-						value=""
-						id="responseLabel"
-						oninput="saveSettings()"
-					/>
-				</div>
-				<div class="sdpi-item">
-					<details>
-						<summary>Available placeholders</summary>
-						<div style="font-size: 11px; opacity: 0.8; padding: 4px 0">
-							<div>{value} - captured response</div>
-							<div>\n - line break</div>
-							<div>Leave blank to replace the title with the response text</div>
-						</div>
-					</details>
-				</div>
 			</div>
 			<div id="State0">
 				<div class="sdpi-heading">Command</div>
