@@ -1,12 +1,3 @@
-> [!CAUTION]
-> ### Marketplace version is currently outdated
-> The latest version is pending approval on the Elgato Marketplace. If you're experiencing issues such as **"action not found"** or **missing settings**, please install manually:
-> 1. Go to the **[Latest Release](https://github.com/josh-tf/fxcommands/releases/latest)**
-> 2. Download the `.streamDeckPlugin` file
-> 3. Double-click the downloaded file to install
->
-> If you set up your profile on an earlier v2.0 release and your buttons show as "action not found", you can fix your exported profile using the **[Profile Migrator](https://josh.tf/fxcommands/migrate/)** tool.
-
 ![FXCommands](media/fxcommands-banner.png 'FXCommands')
 
 [![CI](https://github.com/josh-tf/fxcommands/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-tf/fxcommands/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md) [![Latest Release](https://img.shields.io/github/v/release/josh-tf/fxcommands)](https://github.com/josh-tf/fxcommands/releases/latest)
@@ -67,10 +58,11 @@ e sit;me relaxes on the ground
 
 # Delayed commands
 e think;me thinking;{2000ms};e c
-
-# Toggle button (2 stages)
-# Stage 0: e sit    Stage 1: e c
 ```
+
+For a toggle button, set **Stages** to `2` and fill in each stage separately rather than writing
+one command — e.g. `e sit` on stage 0 and `e c` on stage 1. The button advances a stage on each
+press.
 
 ### Dials (Stream Deck +)
 
