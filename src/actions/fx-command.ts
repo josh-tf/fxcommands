@@ -14,7 +14,7 @@ import streamDeck, {
 	WillDisappearEvent
 } from "@elgato/streamdeck";
 
-import { ConnectionManager } from "../connection-manager";
+import { CAPTURE_TIMEOUT_MS, ConnectionManager } from "../connection-manager";
 
 const logger = streamDeck.logger.createScope("FXCommandAction");
 const MAX_STATES = 5;
@@ -22,7 +22,7 @@ const DELAY_MS = 500;
 const ROTATION_MAX = 255;
 const PERCENT_LAYOUT = "$B1";
 const DEFAULT_LAYOUT = "$A1";
-const PERCENT_PATTERN = /^(-?\d+(?:\.\d+)?)\s*%$/;
+const PERCENT_PATTERN = /^(100(?:\.0+)?|\d{1,2}(?:\.\d+)?)\s*%$/;
 
 /** Delay helper. */
 function sleep(ms: number): Promise<void> {
@@ -75,6 +75,7 @@ type FXCommandSettings = {
 	responseLabel: string;
 	commandInit: string;
 	commandInitRunOnNoResponse: boolean;
+	responseTimeoutMs: number;
 };
 
 function defaultSettings(): FXCommandSettings {
@@ -110,7 +111,8 @@ function defaultSettings(): FXCommandSettings {
 		commandRotateRightResponse: false,
 		responseLabel: "",
 		commandInit: "",
-		commandInitRunOnNoResponse: false
+		commandInitRunOnNoResponse: false,
+		responseTimeoutMs: CAPTURE_TIMEOUT_MS
 	};
 }
 
@@ -140,6 +142,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		const currentState = settings.currentState ?? 0;
 		this.states.set(ev.action.id, currentState);
 		this.rotations.set(ev.action.id, settings.rotationValue ?? 0);
+		this.connectionManager.setDefaultTimeout(settings.responseTimeoutMs);
 
 		await ev.action.setSettings(settings);
 
@@ -377,6 +380,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		const settings = { ...defaultSettings(), ...ev.payload.settings };
 		this.states.set(ev.action.id, settings.currentState ?? 0);
 		this.rotations.set(ev.action.id, settings.rotationValue ?? 0);
+		this.connectionManager.setDefaultTimeout(settings.responseTimeoutMs);
 	}
 
 	override async onWillDisappear(ev: WillDisappearEvent<FXCommandSettings>): Promise<void> {
