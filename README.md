@@ -1,12 +1,3 @@
-> [!CAUTION]
-> ### Marketplace version is currently outdated
-> The latest version is pending approval on the Elgato Marketplace. If you're experiencing issues such as **"action not found"** or **missing settings**, please install manually:
-> 1. Go to the **[Latest Release](https://github.com/josh-tf/fxcommands/releases/latest)**
-> 2. Download the `.streamDeckPlugin` file
-> 3. Double-click the downloaded file to install
->
-> If you set up your profile on an earlier v2.0 release and your buttons show as "action not found", you can fix your exported profile using the **[Profile Migrator](https://josh.tf/fxcommands/migrate/)** tool.
-
 ![FXCommands](media/fxcommands-banner.png 'FXCommands')
 
 [![CI](https://github.com/josh-tf/fxcommands/actions/workflows/ci.yml/badge.svg)](https://github.com/josh-tf/fxcommands/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE.md) [![Latest Release](https://img.shields.io/github/v/release/josh-tf/fxcommands)](https://github.com/josh-tf/fxcommands/releases/latest)
