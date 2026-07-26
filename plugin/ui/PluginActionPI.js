@@ -1,6 +1,7 @@
 let uuid;
 let websocket;
 let currentSettings = {};
+let isEncoder = false;
 
 /**
  * Called by Stream Deck when the Property Inspector loads.
@@ -45,9 +46,35 @@ function connectElgatoStreamDeckSocket(inPort, inPropertyInspectorUUID, inRegist
  * Show/hide the dial-only and key-only sections based on the action's controller type.
  */
 function updateDialVisibility(controller) {
-	var isEncoder = controller === "Encoder";
+	isEncoder = controller === "Encoder";
 	document.getElementById("dialSection").style.display = isEncoder ? "block" : "none";
-	document.getElementById("keySection").style.display = isEncoder ? "none" : "block";
+	updateResponseVisibility();
+}
+
+/**
+ * Command responses need cooperation from the server, so most setups never use
+ * them. Everything they add stays hidden until the feature is switched on.
+ */
+function updateResponseVisibility() {
+	var enabled = document.getElementById("responsesEnabled").checked;
+	var nodes = document.getElementsByClassName("response-only");
+	for (var i = 0; i < nodes.length; i++) {
+		nodes[i].style.display = enabled ? "" : "none";
+	}
+	// Response Label is key-only; a dial shows the value on its touch strip.
+	document.getElementById("keySection").style.display = enabled && !isEncoder ? "" : "none";
+}
+
+/** Configs made before the toggle existed should keep showing their settings. */
+function hasAnyResponseSetting(settings) {
+	if (settings.commandInit || settings.responseLabel || settings.commandInitRunOnNoResponse) return true;
+	if (settings.commandTouchResponse || settings.commandRotateLeftResponse || settings.commandRotateRightResponse) {
+		return true;
+	}
+	for (var i = 0; i < 5; i++) {
+		if (settings["commandPressed" + i + "Response"] || settings["commandReleased" + i + "Response"]) return true;
+	}
+	return false;
 }
 
 /**
@@ -75,6 +102,8 @@ function loadSettings(settings) {
 			!!settings["commandReleased" + i + "Response"];
 	}
 
+	document.getElementById("responsesEnabled").checked =
+		settings.responsesEnabled === undefined ? hasAnyResponseSetting(settings) : !!settings.responsesEnabled;
 	document.getElementById("responseLabel").value = settings.responseLabel || "";
 
 	document.getElementById("commandInit").value = settings.commandInit || "";
@@ -88,6 +117,7 @@ function loadSettings(settings) {
 	document.getElementById("commandRotateRightResponse").checked = !!settings.commandRotateRightResponse;
 
 	updateStateVisibility(desiredStates);
+	updateResponseVisibility();
 }
 
 /**
@@ -111,6 +141,7 @@ function saveSettings() {
 		).checked;
 	}
 
+	settings.responsesEnabled = document.getElementById("responsesEnabled").checked;
 	settings.responseLabel = document.getElementById("responseLabel").value;
 
 	settings.commandInit = document.getElementById("commandInit").value;
@@ -124,6 +155,7 @@ function saveSettings() {
 	settings.commandRotateRightResponse = document.getElementById("commandRotateRightResponse").checked;
 
 	currentSettings = settings;
+	updateResponseVisibility();
 
 	websocket.send(
 		JSON.stringify({

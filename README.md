@@ -61,7 +61,7 @@ e think;me thinking;{2000ms};e c
 ```
 
 For a toggle button, set **Stages** to `2` and fill in each stage separately rather than writing
-one command — e.g. `e sit` on stage 0 and `e c` on stage 1. The button advances a stage on each
+one command, for example `e sit` on stage 0 and `e c` on stage 1. The button advances a stage on each
 press.
 
 ### Dials (Stream Deck +)
@@ -81,9 +81,9 @@ Rotation commands support placeholders that are substituted before the command i
 
 | Placeholder | Value |
 |-------------|-------|
-| `{ticks}` | Detents moved this event — negative left, positive right |
-| `{rotationPercent}` | Running position as `0`–`100` |
-| `{rotationAbsolute}` | Running position as `0`–`255` |
+| `{ticks}` | Detents moved this event, negative left, positive right |
+| `{rotationPercent}` | Running position as `0` to `100` |
+| `{rotationAbsolute}` | Running position as `0` to `255` |
 
 ```sh
 # Send the raw detent delta, letting the server apply it
@@ -95,14 +95,15 @@ radio_volume_set {rotationPercent}
 
 > [!NOTE]
 > `{rotationPercent}` and `{rotationAbsolute}` track a counter held by the plugin, not the game's
-> real value. It starts at `0`, is clamped to `0`–`255`, and will drift if something changes the
+> real value. It starts at `0`, is clamped to `0`-`255`, and will drift if something changes the
 > value in-game. Prefer `{ticks}` unless your server echoes its state back.
 
 ### Command responses
 
-A button can display a value your server sends back — current radio volume, fuel level, on-duty
-count, anything you can `print`. This is **opt-in per command** via the **Show response** checkbox,
-because enabling it changes what your server receives.
+A button can display a value your server sends back: current radio volume, fuel level, on-duty
+count, anything you can `print`. It needs a change on the server, so it stays out of the way until
+you ask for it: tick **Enable command responses** in **Advanced Settings**, and the per-command
+**Show response** checkboxes appear.
 
 #### How it works
 
@@ -137,7 +138,7 @@ end)
 ```
 
 > [!IMPORTANT]
-> Print the token on the **same line** as the value. Its position doesn't matter — it's stripped
+> Print the token on the **same line** as the value. Its position doesn't matter, it's stripped
 > out and whatever remains is displayed. Print nothing else on that line.
 
 > [!CAUTION]
@@ -151,15 +152,17 @@ end)
 | Key | The button title |
 | Dial | The touch-strip value field |
 
-For keys, **Response Label** controls the formatting. Use `{value}` for the response and `\n` for a
-line break; leave it blank to replace the title with the raw response.
+For keys, **Response Label** controls the formatting. Use `{value}` for the response, press Enter
+for a line break, and leave it blank to replace the title with the raw response.
 
-```sh
-Radio\nVolume\n\n{value}
+```
+Volume
+
+{value}
 ```
 
 On a dial, a response formatted as a **percentage** additionally draws a progress bar. Print a
-trailing `%` to opt in — `60%` shows the bar, `60` shows the value alone.
+trailing `%` to opt in. `60%` shows the bar, `60` shows the value alone.
 
 ```lua
 print(("%s %d%%"):format(sdToken, volume))
@@ -167,7 +170,7 @@ print(("%s %d%%"):format(sdToken, volume))
 
 #### Init command
 
-**Get Value** runs whenever the button appears — plugin start, profile load, page switch — so the
+**Get Value** runs whenever the button appears (plugin start, profile load, page switch) so the
 button shows the current value instead of a stale one. It captures a response the same way, so its
 handler needs the same token handling.
 
@@ -196,8 +199,8 @@ npm run build
 ```
 
 Output:
-- `dist/tf.josh.fxcommands.sdPlugin/` — unpacked plugin
-- `dist/tf.josh.fxcommands.streamDeckPlugin` — installable package
+- `dist/tf.josh.fxcommands.sdPlugin/` unpacked plugin
+- `dist/tf.josh.fxcommands.streamDeckPlugin` installable package
 
 ### Development (watch mode)
 

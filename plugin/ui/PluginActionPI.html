@@ -18,86 +18,29 @@
 	</head>
 	<body>
 		<div class="sdpi-wrapper">
-			<div class="sdpi-heading">General</div>
-			<div id="keySection">
-				<div class="sdpi-item">
-					<div class="sdpi-item-label">Response Label</div>
-					<input
-						class="sdpi-item-value"
-						placeholder="e.g. Radio\nVolume\n\n{value}"
-						value=""
-						id="responseLabel"
-						oninput="saveSettings()"
-					/>
-				</div>
-				<details>
-					<summary>Available placeholders</summary>
-					<div class="fx-help">
-						<div>{value} — captured response</div>
-						<div>\n — line break</div>
-						<div>Leave blank to replace the title with the response text</div>
-					</div>
-				</details>
-			</div>
 			<details>
-				<summary>Advanced Settings</summary>
-				<div class="sdpi-item">
-					<div class="sdpi-item-label">Response Timeout (ms)</div>
-					<input
-						class="sdpi-item-value"
-						type="number"
-						placeholder="1500"
-						value="1500"
-						id="responseTimeoutMs"
-						min="1"
-						max="5000"
-						pattern="[0-9]{1,4}"
-						onchange="saveSettings()"
-					/>
-				</div>
-				<div class="sdpi-item">
-					<div class="sdpi-item-label">No. of states (Max 5)</div>
-					<input
-						class="sdpi-item-value"
-						type="number"
-						placeholder="1"
-						value="1"
-						id="desiredStates"
-						min="1"
-						max="5"
-						pattern="[0-9]{1,2}"
-						onchange="setDesiredState()"
-					/>
-				</div>
-			</details>
-			<div class="sdpi-heading">Init Command</div>
-			<div class="sdpi-item">
-				<div class="sdpi-item-label">Get Value</div>
-				<input
-					class="sdpi-item-value"
-					placeholder="e.g. radio_vol"
-					value=""
-					id="commandInit"
-					oninput="saveSettings()"
-				/>
-			</div>
-			<div class="sdpi-item" type="checkbox">
-				<div class="sdpi-item-label empty"></div>
-				<div class="sdpi-item-value">
-					<span class="sdpi-item-child">
-						<input id="commandInitRunOnNoResponse" type="checkbox" onchange="saveSettings()" />
-						<label for="commandInitRunOnNoResponse"
-							><span></span>Also run after commands without "Show response"</label
-						>
-					</span>
-				</div>
-			</div>
-			<details>
-				<summary>About</summary>
+				<summary>Getting started</summary>
 				<div class="fx-help">
 					<div>
-						Has the same behavior as "Show response" but is run when the action appears on the page. Used to
-						ensure the current value is always shown.
+						Put any command you would type into the FiveM or RedM console into
+						<strong>On Press</strong>. The game has to be running on this PC.
+					</div>
+					<div style="margin-top: 8px"><strong>Syntax</strong></div>
+					<div><code>e sit;me sits down</code> runs several, one after another</div>
+					<div><code>e think;;e c</code> waits 500ms between them</div>
+					<div><code>e think;{200ms};e c</code> waits a specific time</div>
+					<div style="margin-top: 8px">
+						Raise <strong>No. of states</strong> in Advanced Settings to cycle a button through several
+						commands.
+					</div>
+					<div style="margin-top: 8px">
+						<a href="https://josh.tf/fxcommands/setup/" target="_blank" rel="noopener">Setup guide</a>
+						&middot;
+						<a href="https://josh.tf/fxcommands/troubleshooting/" target="_blank" rel="noopener"
+							>Troubleshooting</a
+						>
+						&middot;
+						<a href="https://github.com/josh-tf/fxcommands/wiki" target="_blank" rel="noopener">Wiki</a>
 					</div>
 				</div>
 			</details>
@@ -113,7 +56,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -132,7 +75,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -154,7 +97,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -173,7 +116,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -195,7 +138,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -214,7 +157,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -236,7 +179,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -255,7 +198,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -277,7 +220,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -296,7 +239,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -318,7 +261,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -337,7 +280,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -356,7 +299,7 @@
 						oninput="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item" type="checkbox">
+				<div class="sdpi-item response-only" type="checkbox">
 					<div class="sdpi-item-label empty"></div>
 					<div class="sdpi-item-value">
 						<span class="sdpi-item-child">
@@ -368,12 +311,135 @@
 				<details>
 					<summary>Available placeholders</summary>
 					<div class="fx-help">
-						<div>{ticks} — ticks rotated (negative = left, positive = right)</div>
-						<div>{rotationPercent} — 0–100 rotation percentage</div>
-						<div>{rotationAbsolute} — 0–255 absolute rotation value</div>
+						<div>{ticks}: detents turned, negative left, positive right</div>
+						<div>{rotationPercent}: position as 0-100</div>
+						<div>{rotationAbsolute}: position as 0-255</div>
 					</div>
 				</details>
 			</div>
+			<div id="responseSection" class="response-only">
+				<div class="sdpi-heading">Command Responses</div>
+				<div class="sdpi-item">
+					<div class="sdpi-item-label">Get Value</div>
+					<input
+						class="sdpi-item-value"
+						placeholder="e.g. radio_vol"
+						value=""
+						id="commandInit"
+						oninput="saveSettings()"
+					/>
+				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="commandInitRunOnNoResponse" type="checkbox" onchange="saveSettings()" />
+							<label for="commandInitRunOnNoResponse"
+								><span></span>Also run after commands without "Show response"</label
+							>
+						</span>
+					</div>
+				</div>
+				<details>
+					<summary>Help &amp; info</summary>
+					<div class="fx-help">
+						<div><strong>How it works</strong></div>
+						<div>
+							Ticking "Show response" appends a token like <code>@fxid:ab12cd34</code> to the command,
+							then watches the console for a line containing it. The token is stripped and whatever
+							remains is shown on the button.
+						</div>
+						<div style="margin-top: 8px"><strong>Your command has to cooperate</strong></div>
+						<div>Pull the token off the end of the arguments and print it back with the value:</div>
+						<div style="margin-top: 4px">
+							<code
+								>local t = args[#args]:match("^@fxid:") and table.remove(args)<br />
+								if t then print(("%s %s"):format(t, value)) end</code
+							>
+						</div>
+						<div style="margin-top: 8px">
+							Only tick it for commands you have updated. Anything else receives
+							<code>@fxid:...</code> as an unexpected extra argument.
+						</div>
+						<div style="margin-top: 8px"><strong>Get Value</strong></div>
+						<div>
+							Runs when the button appears (plugin start, profile load, page switch) so it shows the
+							current value rather than a stale one. Needs the same token handling.
+						</div>
+						<div style="margin-top: 8px"><strong>On a dial</strong></div>
+						<div>
+							The value goes on the touch strip instead of the title. Print a trailing
+							<code>%</code> and it draws a progress bar.
+						</div>
+						<div style="margin-top: 8px">
+							Nothing back within the timeout leaves the button unchanged. Full guide:
+							<a href="https://github.com/josh-tf/fxcommands/wiki" target="_blank" rel="noopener"
+								>the wiki</a
+							>.
+						</div>
+					</div>
+				</details>
+				<div id="keySection">
+					<div class="sdpi-item">
+						<div class="sdpi-item-label">Response Label</div>
+						<textarea
+							class="sdpi-item-value"
+							rows="3"
+							placeholder="Volume&#10;&#10;{value}"
+							id="responseLabel"
+							oninput="saveSettings()"
+						></textarea>
+					</div>
+					<details>
+						<summary>Available placeholders</summary>
+						<div class="fx-help">
+							<div>{value}: the captured response</div>
+							<div>Line breaks are kept as typed (\n also works)</div>
+							<div>Leave blank to replace the title with the response text</div>
+						</div>
+					</details>
+				</div>
+			</div>
+			<details>
+				<summary>Advanced Settings</summary>
+				<div class="sdpi-item">
+					<div class="sdpi-item-label">No. of states (Max 5)</div>
+					<input
+						class="sdpi-item-value"
+						type="number"
+						placeholder="1"
+						value="1"
+						id="desiredStates"
+						min="1"
+						max="5"
+						pattern="[0-9]{1,2}"
+						onchange="setDesiredState()"
+					/>
+				</div>
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="responsesEnabled" type="checkbox" onchange="saveSettings()" />
+							<label for="responsesEnabled"><span></span>Enable command responses</label>
+						</span>
+					</div>
+				</div>
+				<div class="sdpi-item response-only">
+					<div class="sdpi-item-label">Response Timeout (ms)</div>
+					<input
+						class="sdpi-item-value"
+						type="number"
+						placeholder="1500"
+						value="1500"
+						id="responseTimeoutMs"
+						min="1"
+						max="5000"
+						pattern="[0-9]{1,4}"
+						onchange="saveSettings()"
+					/>
+				</div>
+			</details>
 		</div>
 		<script src="PluginActionPI.js"></script>
 	</body>
