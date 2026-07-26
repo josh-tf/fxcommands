@@ -55,10 +55,11 @@ e sit;me relaxes on the ground
 
 # Delayed commands
 e think;me thinking;{2000ms};e c
-
-# Toggle button (2 stages)
-# Stage 0: e sit    Stage 1: e c
 ```
+
+For a toggle button, set **Stages** to `2` and fill in each stage separately rather than writing
+one command — e.g. `e sit` on stage 0 and `e c` on stage 1. The button advances a stage on each
+press.
 
 For full syntax reference, examples, and advanced setups see the [Wiki](https://github.com/josh-tf/fxcommands/wiki).
 
