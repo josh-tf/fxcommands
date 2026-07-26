@@ -18,7 +18,7 @@ const INCOMING_MAGICS = [PRNT_MAGIC, CHAN_MAGIC, CVAR_MAGIC, AINF_MAGIC];
 const PRNT_PAYLOAD_OFFSET = 40;
 const HANDSHAKE = Buffer.from([0x50, 0x50, 0x43, 0x52]); // "PPCR"
 
-const CAPTURE_TIMEOUT_MS = 1500;
+export const CAPTURE_TIMEOUT_MS = 1500;
 const TOKEN_PREFIX = "@fxid:"; // Prefix for command responses e.g. "@fxid:ab12cd34"
 
 // Minimum gap between outgoing frames to prevent some being silently dropped
@@ -42,6 +42,11 @@ export class ConnectionManager {
 	private recvBuffer = Buffer.alloc(0);
 	private lineHandlers = new Set<(line: string) => void>();
 	private sendQueue: Promise<void> = Promise.resolve();
+	private defaultTimeoutMs = CAPTURE_TIMEOUT_MS;
+
+	public setDefaultTimeout(timeoutMs: number): void {
+		this.defaultTimeoutMs = timeoutMs > 0 ? Math.min(5000, timeoutMs) : CAPTURE_TIMEOUT_MS;
+	}
 
 	/**
 	 * Open the TCP connection. Resolves when connected.
@@ -182,10 +187,7 @@ export class ConnectionManager {
 	 * and wait for a console line containing that same token to appear.
 	 * `response` is null if no matching line appears before `timeoutMs` elapses.
 	 */
-	public async sendWithToken(
-		command: string,
-		timeoutMs = CAPTURE_TIMEOUT_MS
-	): Promise<{ sent: boolean; response: string | null }> {
+	public async sendWithToken(command: string): Promise<{ sent: boolean; response: string | null }> {
 		const tag = `${TOKEN_PREFIX}${randomUUID().slice(0, 8)}`;
 
 		const responsePromise = new Promise<string | null>((resolve) => {
@@ -201,7 +203,7 @@ export class ConnectionManager {
 				}
 			};
 
-			const timer = setTimeout(() => finish(null), timeoutMs);
+			const timer = setTimeout(() => finish(null), this.defaultTimeoutMs);
 			this.lineHandlers.add(handler);
 		});
 

@@ -14,6 +14,20 @@
 			<details>
 				<summary>Advanced Settings</summary>
 				<div class="sdpi-item">
+					<div class="sdpi-item-label">Response Timeout (ms)</div>
+					<input
+						class="sdpi-item-value"
+						type="number"
+						placeholder="1500"
+						value="1500"
+						id="responseTimeoutMs"
+						min="1"
+						max="5000"
+						pattern="[0-9]{1,4}"
+						onchange="saveSettings()"
+					/>
+				</div>
+				<div class="sdpi-item">
 					<div class="sdpi-item-label">No. of states (Max 5)</div>
 					<input
 						class="sdpi-item-value"

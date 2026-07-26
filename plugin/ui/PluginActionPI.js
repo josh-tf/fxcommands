@@ -62,6 +62,8 @@ function loadSettings(settings) {
 	var desiredStates = settings.desiredStates || 1;
 	document.getElementById("desiredStates").value = desiredStates;
 
+	document.getElementById("responseTimeoutMs").value = settings.responseTimeoutMs || 1500;
+
 	for (var i = 0; i < 5; i++) {
 		var pressedEl = document.getElementById("commandPressed" + i);
 		var releasedEl = document.getElementById("commandReleased" + i);
@@ -96,6 +98,7 @@ function saveSettings() {
 
 	var settings = Object.assign({}, currentSettings);
 	settings.desiredStates = parseInt(document.getElementById("desiredStates").value) || 1;
+	settings.responseTimeoutMs = parseInt(document.getElementById("responseTimeoutMs").value) || 1500;
 
 	for (var i = 0; i < 5; i++) {
 		settings["commandPressed" + i] = document.getElementById("commandPressed" + i).value;
