@@ -79,7 +79,7 @@ type FXCommandSettings = {
 	commandInitRunOnNoResponse: boolean;
 	responseTimeoutMs: number;
 	/** Property Inspector only: hides the response controls. Absent on configs predating it. */
-	responsesEnabled?: boolean;
+	responsesEnabled: boolean;
 	/** Advanced Settings: overrides the default console IP/port. Blank/0 falls back to the default. */
 	serverIp?: string;
 	serverPort?: number;
@@ -120,6 +120,7 @@ function defaultSettings(): FXCommandSettings {
 		commandInit: "",
 		commandInitRunOnNoResponse: false,
 		responseTimeoutMs: CAPTURE_TIMEOUT_MS,
+		responsesEnabled: false,
 		serverIp: ""
 	};
 }
@@ -133,8 +134,8 @@ function getCommandAction(settings: FXCommandSettings, stateIndex: number): Comm
 	return {
 		commandPressed: pressed || "",
 		commandReleased: released || "",
-		commandPressedResponse: !!pressedResponse,
-		commandReleasedResponse: !!releasedResponse
+		commandPressedResponse: settings.responsesEnabled && !!pressedResponse,
+		commandReleasedResponse: settings.responsesEnabled && !!releasedResponse
 	};
 }
 
@@ -216,8 +217,10 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (ev.action.isKey()) {
 			await ev.action.setState(currentState);
-			if (settings.responseLabel) {
+			if (settings.responsesEnabled && settings.responseLabel) {
 				await ev.action.setTitle(buildLabelTitle(settings.responseLabel, ""));
+			} else {
+				await ev.action.setTitle(undefined);
 			}
 		}
 
@@ -328,7 +331,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		action: KeyAction<FXCommandSettings> | DialAction<FXCommandSettings>,
 		settings: FXCommandSettings
 	): Promise<void> {
-		if (!settings.commandInit) return;
+		if (!settings.commandInit || !settings.responsesEnabled) return;
 		const { response } = await this.sendCommand(
 			this.getConnectionManager(settings),
 			settings.commandInit,
@@ -426,7 +429,9 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		this.rotations.set(ev.action.id, rotationAbsolute);
 
 		const template = ticks < 0 ? settings.commandRotateLeft : settings.commandRotateRight;
-		const expectResponse = ticks < 0 ? settings.commandRotateLeftResponse : settings.commandRotateRightResponse;
+		const expectResponse =
+			settings.responsesEnabled &&
+			(ticks < 0 ? settings.commandRotateLeftResponse : settings.commandRotateRightResponse);
 		if (template) {
 			logger.debug(`DialRotate [${ticks}]: ${template}`);
 
@@ -462,14 +467,15 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (settings.commandTouch) {
 			logger.debug(`TouchTap: ${settings.commandTouch}`);
+			const expectResponse = settings.responsesEnabled && settings.commandTouchResponse;
 			const { success, response } = await this.sendCommand(
 				this.getConnectionManager(settings),
 				settings.commandTouch,
-				settings.commandTouchResponse,
+				expectResponse,
 				settings.responseTimeoutMs
 			);
 			if (!success) await ev.action.showAlert();
-			if (settings.commandTouchResponse) {
+			if (expectResponse) {
 				await this.showResponse(ev.action, response, settings.responseLabel);
 			} else if (settings.commandInitRunOnNoResponse) {
 				await this.runInitCommand(ev.action, settings);

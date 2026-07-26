@@ -105,8 +105,7 @@ function loadSettings(settings) {
 			!!settings["commandReleased" + i + "Response"];
 	}
 
-	document.getElementById("responsesEnabled").checked =
-		settings.responsesEnabled === undefined ? hasAnyResponseSetting(settings) : !!settings.responsesEnabled;
+	document.getElementById("responsesEnabled").checked = !!settings.responsesEnabled;
 	document.getElementById("responseLabel").value = settings.responseLabel || "";
 
 	document.getElementById("commandInit").value = settings.commandInit || "";
