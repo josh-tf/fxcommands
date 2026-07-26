@@ -58,7 +58,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
 
       # Releasing is driven by "is this version already released?" rather than by
-      # diffing against HEAD~1 — a push landing several commits at once would make
+      # diffing against HEAD~1. A push landing several commits at once would make
       # the version look unchanged and silently skip the release. Gating on the
       # release rather than the tag also means a run that failed after tagging can
       # simply be retried, instead of skipping and reporting success with nothing
@@ -71,7 +71,7 @@ jobs:
           TAG="v${{ needs.check.outputs.version }}"
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "$TAG is already released — nothing to do."
+            echo "$TAG is already released, nothing to do."
           else
             echo "new=true" >> "$GITHUB_OUTPUT"
           fi
