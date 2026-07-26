@@ -20,6 +20,7 @@ const logger = streamDeck.logger.createScope("FXCommandAction");
 const MAX_STATES = 5;
 const DELAY_MS = 500;
 const ROTATION_MAX = 255;
+const ROTATION_PERSIST_MS = 400;
 const PERCENT_LAYOUT = "$B1";
 const DEFAULT_LAYOUT = "$A1";
 const PERCENT_PATTERN = /^(100(?:\.0+)?|\d{1,2}(?:\.\d+)?)\s*%$/;
@@ -136,6 +137,26 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	private states = new Map<string, number>();
 	private rotations = new Map<string, number>();
 	private layouts = new Map<string, string>();
+	private rotationPersists = new Map<string, { timer: ReturnType<typeof setTimeout>; flush: () => void }>();
+
+	/**
+	 * Persist the rotation value once a burst of dial movement settles.
+	 *
+	 * A dial emits a stream of rotate events, and calling setSettings on each one
+	 * both writes the profile to disk repeatedly and pushes didReceiveSettings to
+	 * an open Property Inspector, which would reload its fields mid-edit.
+	 */
+	private schedulePersistRotation(action: DialAction<FXCommandSettings>, settings: FXCommandSettings): void {
+		const existing = this.rotationPersists.get(action.id);
+		if (existing) clearTimeout(existing.timer);
+
+		const flush = (): void => {
+			this.rotationPersists.delete(action.id);
+			void action.setSettings({ ...settings, rotationValue: this.rotations.get(action.id) ?? 0 });
+		};
+
+		this.rotationPersists.set(action.id, { timer: setTimeout(flush, ROTATION_PERSIST_MS), flush });
+	}
 
 	override async onWillAppear(ev: WillAppearEvent<FXCommandSettings>): Promise<void> {
 		const settings = { ...defaultSettings(), ...ev.payload.settings };
@@ -357,8 +378,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 			}
 		}
 
-		settings.rotationValue = rotationAbsolute;
-		await ev.action.setSettings(settings);
+		this.schedulePersistRotation(ev.action, settings);
 	}
 
 	override async onTouchTap(ev: TouchTapEvent<FXCommandSettings>): Promise<void> {
@@ -384,6 +404,13 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	}
 
 	override async onWillDisappear(ev: WillDisappearEvent<FXCommandSettings>): Promise<void> {
+		// Flush any rotation still waiting on the debounce so it survives a page switch.
+		const pending = this.rotationPersists.get(ev.action.id);
+		if (pending) {
+			clearTimeout(pending.timer);
+			pending.flush();
+		}
+
 		this.states.delete(ev.action.id);
 		this.rotations.delete(ev.action.id);
 		this.layouts.delete(ev.action.id);
