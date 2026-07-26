@@ -48,9 +48,30 @@ if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
 	exit 1
 fi
 
-# origin is authoritative — it's what CI checks before creating a release.
+# The release gate below shells out to gh. Without it the gate would fail open
+# and happily cut a version that already has a draft.
+if ! command -v gh >/dev/null 2>&1; then
+	echo "Error: gh CLI is required (used to check for an existing release)"
+	exit 1
+fi
+
+if ! gh auth status >/dev/null 2>&1; then
+	echo "Error: gh is not authenticated — run: gh auth login"
+	exit 1
+fi
+
+# Match the gate CI uses. Releases are created as drafts, and a draft holds the
+# tag name without creating the git ref, so checking for the tag would miss an
+# existing draft and let the same version be cut twice.
+if gh release view "${TAG}" >/dev/null 2>&1; then
+	echo "Error: ${TAG} already has a release on origin"
+	echo "       If it is an abandoned draft, delete it first:"
+	echo "         gh release delete ${TAG}"
+	exit 1
+fi
+
 if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
-	echo "Error: ${TAG} is already released on origin"
+	echo "Error: tag ${TAG} already exists on origin"
 	exit 1
 fi
 
