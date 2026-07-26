@@ -65,6 +65,18 @@ function updateResponseVisibility() {
 	document.getElementById("keySection").style.display = enabled && !isEncoder ? "" : "none";
 }
 
+/**
+ * Nearly every setup talks to the game on this PC, so the address fields stay
+ * hidden until someone opts into pointing at a different console.
+ */
+function updateServerVisibility() {
+	var enabled = document.getElementById("customServerEnabled").checked;
+	var nodes = document.getElementsByClassName("server-only");
+	for (var i = 0; i < nodes.length; i++) {
+		nodes[i].style.display = enabled ? "" : "none";
+	}
+}
+
 /** Configs made before the toggle existed should keep showing their settings. */
 function hasAnyResponseSetting(settings) {
 	if (settings.commandInit || settings.responseLabel || settings.commandInitRunOnNoResponse) return true;
@@ -91,6 +103,7 @@ function loadSettings(settings) {
 
 	document.getElementById("responseTimeoutMs").value = settings.responseTimeoutMs || 1500;
 
+	document.getElementById("customServerEnabled").checked = !!settings.customServerEnabled;
 	document.getElementById("serverIp").value = settings.serverIp || "";
 	document.getElementById("serverPort").value = settings.serverPort || "";
 
@@ -120,6 +133,7 @@ function loadSettings(settings) {
 
 	updateStateVisibility(desiredStates);
 	updateResponseVisibility();
+	updateServerVisibility();
 }
 
 /**
@@ -132,9 +146,10 @@ function saveSettings() {
 	settings.desiredStates = parseInt(document.getElementById("desiredStates").value) || 1;
 	settings.responseTimeoutMs = parseInt(document.getElementById("responseTimeoutMs").value) || 1500;
 
+	settings.customServerEnabled = document.getElementById("customServerEnabled").checked;
 	settings.serverIp = document.getElementById("serverIp").value.trim();
 	var serverPort = parseInt(document.getElementById("serverPort").value);
-	settings.serverPort = serverPort > 0 ? serverPort : undefined;
+	settings.serverPort = serverPort > 0 && serverPort <= 65535 ? serverPort : undefined;
 
 	for (var i = 0; i < 5; i++) {
 		settings["commandPressed" + i] = document.getElementById("commandPressed" + i).value;
@@ -162,6 +177,7 @@ function saveSettings() {
 
 	currentSettings = settings;
 	updateResponseVisibility();
+	updateServerVisibility();
 
 	websocket.send(
 		JSON.stringify({

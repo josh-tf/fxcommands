@@ -80,7 +80,9 @@ type FXCommandSettings = {
 	responseTimeoutMs: number;
 	/** Property Inspector only: hides the response controls. Absent on configs predating it. */
 	responsesEnabled: boolean;
-	/** Advanced Settings: overrides the default console IP/port. Blank/0 falls back to the default. */
+	/** Advanced Settings: gates the console IP/port overrides below. */
+	customServerEnabled: boolean;
+	/** Only consulted when customServerEnabled. Blank/0 falls back to the default. */
 	serverIp?: string;
 	serverPort?: number;
 };
@@ -121,6 +123,7 @@ function defaultSettings(): FXCommandSettings {
 		commandInitRunOnNoResponse: false,
 		responseTimeoutMs: CAPTURE_TIMEOUT_MS,
 		responsesEnabled: false,
+		customServerEnabled: false,
 		serverIp: ""
 	};
 }
@@ -149,10 +152,15 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	private initRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
 	private responseSeq = new Map<string, number>();
 
-	/** Get or create the connection for this action's configured (or default) host/port. */
+	/**
+	 * Get or create the connection for this action's configured (or default) host/port.
+	 * The overrides are ignored unless the toggle is on, so switching it off restores
+	 * the local default without having to clear the fields.
+	 */
 	private getConnectionManager(settings: FXCommandSettings): ConnectionManager {
-		const host = settings.serverIp?.trim() || DEFAULT_HOST;
-		const port = settings.serverPort || DEFAULT_PORT;
+		const custom = settings.customServerEnabled;
+		const host = (custom ? settings.serverIp?.trim() : "") || DEFAULT_HOST;
+		const port = (custom ? settings.serverPort : 0) || DEFAULT_PORT;
 		const key = `${host}:${port}`;
 
 		let manager = this.connectionManagers.get(key);

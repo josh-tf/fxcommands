@@ -439,17 +439,26 @@
 						onchange="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item">
+				<div class="sdpi-item" type="checkbox">
+					<div class="sdpi-item-label empty"></div>
+					<div class="sdpi-item-value">
+						<span class="sdpi-item-child">
+							<input id="customServerEnabled" type="checkbox" onchange="saveSettings()" />
+							<label for="customServerEnabled"><span></span>Enable custom server IP/Port</label>
+						</span>
+					</div>
+				</div>
+				<div class="sdpi-item server-only">
 					<div class="sdpi-item-label">Server IP</div>
 					<input
 						class="sdpi-item-value"
 						placeholder="127.0.0.1"
 						value=""
 						id="serverIp"
-						oninput="saveSettings()"
+						onchange="saveSettings()"
 					/>
 				</div>
-				<div class="sdpi-item">
+				<div class="sdpi-item server-only">
 					<div class="sdpi-item-label">Server Port</div>
 					<input
 						class="sdpi-item-value"
@@ -463,7 +472,10 @@
 						onchange="saveSettings()"
 					/>
 				</div>
-				<div class="fx-help">Leave blank to use the default (127.0.0.1:29200). CL2 uses 29300.</div>
+				<div class="fx-help server-only">
+					Leave either blank to use the default (127.0.0.1:29200). CL2 uses 29300, and the
+					<code>-devcon</code> client argument is needed for remote access.
+				</div>
 			</details>
 		</div>
 		<script src="PluginActionPI.js"></script>
