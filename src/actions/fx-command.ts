@@ -168,13 +168,19 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	 * both writes the profile to disk repeatedly and pushes didReceiveSettings to
 	 * an open Property Inspector, which would reload its fields mid-edit.
 	 */
-	private schedulePersistRotation(action: DialAction<FXCommandSettings>, settings: FXCommandSettings): void {
+	private schedulePersistRotation(action: DialAction<FXCommandSettings>): void {
 		const existing = this.rotationPersists.get(action.id);
 		if (existing) clearTimeout(existing.timer);
 
 		const flush = (): void => {
 			this.rotationPersists.delete(action.id);
-			void action.setSettings({ ...settings, rotationValue: this.rotations.get(action.id) ?? 0 });
+			// Re-read rather than writing a snapshot captured when the timer was set.
+			// setSettings replaces the whole object, so persisting a stale copy would
+			// revert anything edited in the Property Inspector during the debounce.
+			void (async () => {
+				const current = await action.getSettings();
+				await action.setSettings({ ...current, rotationValue: this.rotations.get(action.id) ?? 0 });
+			})();
 		};
 
 		this.rotationPersists.set(action.id, { timer: setTimeout(flush, ROTATION_PERSIST_MS), flush });
@@ -418,7 +424,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 			}
 		}
 
-		this.schedulePersistRotation(ev.action, settings);
+		this.schedulePersistRotation(ev.action);
 	}
 
 	override async onTouchTap(ev: TouchTapEvent<FXCommandSettings>): Promise<void> {
@@ -442,8 +448,20 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 	override async onDidReceiveSettings(ev: DidReceiveSettingsEvent<FXCommandSettings>): Promise<void> {
 		const settings = { ...defaultSettings(), ...ev.payload.settings };
-		this.states.set(ev.action.id, settings.currentState ?? 0);
+
+		// Reducing the state count can leave currentState pointing past the end, at a
+		// stage no longer shown in the Property Inspector. Left alone the button would
+		// keep firing that hidden stage's command, so clamp back into range.
+		const desiredStates = Math.min(Math.max(settings.desiredStates || 1, 1), MAX_STATES);
+		const currentState = Math.min(settings.currentState ?? 0, desiredStates - 1);
+
+		this.states.set(ev.action.id, currentState);
 		this.rotations.set(ev.action.id, settings.rotationValue ?? 0);
+
+		if (currentState !== settings.currentState) {
+			await ev.action.setSettings({ ...settings, currentState });
+			if (ev.action.isKey()) await ev.action.setState(currentState);
+		}
 	}
 
 	override async onWillDisappear(ev: WillDisappearEvent<FXCommandSettings>): Promise<void> {
