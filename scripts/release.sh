@@ -34,7 +34,7 @@ if [ "$BRANCH" != "main" ]; then
 fi
 
 if [ -n "$(git status --porcelain)" ]; then
-	echo "Error: working tree is not clean — commit or stash first:"
+	echo "Error: working tree is not clean, commit or stash first:"
 	git status --short
 	exit 1
 fi
@@ -44,7 +44,7 @@ fi
 git fetch origin main --tags --force --prune-tags
 
 if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
-	echo "Error: local main is not in sync with origin/main — pull or push first"
+	echo "Error: local main is not in sync with origin/main, pull or push first"
 	exit 1
 fi
 
@@ -56,7 +56,7 @@ if ! command -v gh >/dev/null 2>&1; then
 fi
 
 if ! gh auth status >/dev/null 2>&1; then
-	echo "Error: gh is not authenticated — run: gh auth login"
+	echo "Error: gh is not authenticated, run: gh auth login"
 	exit 1
 fi
 
@@ -106,7 +106,7 @@ sed -i "/\"URL\"/,/\"Version\"/ s/\"Version\": \"[^\"]*\"/\"Version\": \"${VERSI
 npm run check
 npm run build
 
-# --- Commit and push — CI tags and drafts the release ----------------------
+# --- Commit and push, CI tags and drafts the release ---------------------
 
 git add package.json package-lock.json "$MANIFEST"
 git commit -S -m "chore: bump version to ${VERSION}"
