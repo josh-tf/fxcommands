@@ -22,7 +22,8 @@
 		"spell": "cspell \"src/**/*.ts\" \"plugin/**/*.{js,html}\" \"*.md\" \"*.json\"",
 		"circular": "madge --circular --extensions ts src/",
 		"unused": "knip",
-		"check": "npm run typecheck && npm run lint && npm run format:check && npm run spell && npm run circular && npm run unused",
+		"version:check": "node scripts/check-version.mjs",
+		"check": "npm run version:check && npm run typecheck && npm run lint && npm run format:check && npm run spell && npm run circular && npm run unused",
 		"release": "bash scripts/release.sh"
 	},
 	"dependencies": {
