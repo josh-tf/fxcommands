@@ -185,7 +185,6 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		const currentState = settings.currentState ?? 0;
 		this.states.set(ev.action.id, currentState);
 		this.rotations.set(ev.action.id, settings.rotationValue ?? 0);
-		this.connectionManager.setDefaultTimeout(settings.responseTimeoutMs);
 
 		await ev.action.setSettings(settings);
 
@@ -218,6 +217,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	private async sendCommand(
 		command: string,
 		expectResponse: boolean,
+		timeoutMs: number,
 		vars: Record<string, string | number> = {}
 	): Promise<{ success: boolean; response: string | null }> {
 		const substitute = (text: string): string =>
@@ -248,7 +248,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 				await sleep(token.ms);
 			} else if (token.value) {
 				if (expectResponse) {
-					const result = await this.connectionManager.sendWithToken(token.value);
+					const result = await this.connectionManager.sendWithToken(token.value, timeoutMs);
 					if (!result.sent) success = false;
 					if (result.response) response = result.response;
 				} else {
@@ -302,7 +302,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		settings: FXCommandSettings
 	): Promise<void> {
 		if (!settings.commandInit) return;
-		const { response } = await this.sendCommand(settings.commandInit, true);
+		const { response } = await this.sendCommand(settings.commandInit, true, settings.responseTimeoutMs);
 		await this.showResponse(action, response, settings.responseLabel);
 	}
 
@@ -316,7 +316,11 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (cmd.commandPressed) {
 			logger.debug(`Press [${currentState}]: ${cmd.commandPressed}`);
-			const { success, response } = await this.sendCommand(cmd.commandPressed, cmd.commandPressedResponse);
+			const { success, response } = await this.sendCommand(
+				cmd.commandPressed,
+				cmd.commandPressedResponse,
+				settings.responseTimeoutMs
+			);
 			if (!success) await action.showAlert();
 			if (cmd.commandPressedResponse) {
 				await this.showResponse(action, response, settings.responseLabel);
@@ -336,7 +340,11 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (cmd.commandReleased) {
 			logger.debug(`Release [${currentState}]: ${cmd.commandReleased}`);
-			const { success, response } = await this.sendCommand(cmd.commandReleased, cmd.commandReleasedResponse);
+			const { success, response } = await this.sendCommand(
+				cmd.commandReleased,
+				cmd.commandReleasedResponse,
+				settings.responseTimeoutMs
+			);
 			if (!success) await action.showAlert();
 			if (cmd.commandReleasedResponse) {
 				await this.showResponse(action, response, settings.responseLabel);
@@ -394,7 +402,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 			const seq = (this.responseSeq.get(ev.action.id) ?? 0) + 1;
 			this.responseSeq.set(ev.action.id, seq);
 
-			const { success, response } = await this.sendCommand(template, expectResponse, {
+			const { success, response } = await this.sendCommand(template, expectResponse, settings.responseTimeoutMs, {
 				ticks,
 				rotationPercent,
 				rotationAbsolute
@@ -418,7 +426,11 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 
 		if (settings.commandTouch) {
 			logger.debug(`TouchTap: ${settings.commandTouch}`);
-			const { success, response } = await this.sendCommand(settings.commandTouch, settings.commandTouchResponse);
+			const { success, response } = await this.sendCommand(
+				settings.commandTouch,
+				settings.commandTouchResponse,
+				settings.responseTimeoutMs
+			);
 			if (!success) await ev.action.showAlert();
 			if (settings.commandTouchResponse) {
 				await this.showResponse(ev.action, response, settings.responseLabel);
@@ -432,7 +444,6 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		const settings = { ...defaultSettings(), ...ev.payload.settings };
 		this.states.set(ev.action.id, settings.currentState ?? 0);
 		this.rotations.set(ev.action.id, settings.rotationValue ?? 0);
-		this.connectionManager.setDefaultTimeout(settings.responseTimeoutMs);
 	}
 
 	override async onWillDisappear(ev: WillDisappearEvent<FXCommandSettings>): Promise<void> {
