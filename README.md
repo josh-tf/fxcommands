@@ -101,8 +101,9 @@ radio_volume_set {rotationPercent}
 ### Command responses
 
 A button can display a value your server sends back: current radio volume, fuel level, on-duty
-count, anything you can `print`. This is **opt-in per command** via the **Show response** checkbox,
-because enabling it changes what your server receives.
+count, anything you can `print`. It needs a change on the server, so it stays out of the way until
+you ask for it: tick **Enable command responses** in **Advanced Settings**, and the per-command
+**Show response** checkboxes appear.
 
 #### How it works
 
@@ -151,11 +152,13 @@ end)
 | Key | The button title |
 | Dial | The touch-strip value field |
 
-For keys, **Response Label** controls the formatting. Use `{value}` for the response and `\n` for a
-line break; leave it blank to replace the title with the raw response.
+For keys, **Response Label** controls the formatting. Use `{value}` for the response, press Enter
+for a line break, and leave it blank to replace the title with the raw response.
 
-```sh
-Radio\nVolume\n\n{value}
+```
+Volume
+
+{value}
 ```
 
 On a dial, a response formatted as a **percentage** additionally draws a progress bar. Print a
