@@ -18,7 +18,9 @@
 		"noEmit",
 		"cmnd",
 		"keypad",
-		"imgs"
+		"imgs",
+		"voldown",
+		"volup"
 	],
 	"ignorePaths": ["dist/", "node_modules/", "package-lock.json", "plugin/ui/sdpi.css", "plugin/imgs/"]
 }
