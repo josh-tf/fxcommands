@@ -26,9 +26,9 @@
 						<strong>On Press</strong>. The game has to be running on this PC.
 					</div>
 					<div style="margin-top: 8px"><strong>Syntax</strong></div>
-					<div><code>e sit;me sits down</code> &mdash; run several, one after another</div>
-					<div><code>e think;;e c</code> &mdash; wait 500ms between them</div>
-					<div><code>e think;{200ms};e c</code> &mdash; wait a specific time</div>
+					<div><code>e sit;me sits down</code> runs several, one after another</div>
+					<div><code>e think;;e c</code> waits 500ms between them</div>
+					<div><code>e think;{200ms};e c</code> waits a specific time</div>
 					<div style="margin-top: 8px">
 						Raise <strong>No. of states</strong> in Advanced Settings to cycle a button through several
 						commands.
@@ -311,9 +311,9 @@
 				<details>
 					<summary>Available placeholders</summary>
 					<div class="fx-help">
-						<div>{ticks} — ticks rotated (negative = left, positive = right)</div>
-						<div>{rotationPercent} — 0–100 rotation percentage</div>
-						<div>{rotationAbsolute} — 0–255 absolute rotation value</div>
+						<div>{ticks}: detents turned, negative left, positive right</div>
+						<div>{rotationPercent}: position as 0-100</div>
+						<div>{rotationAbsolute}: position as 0-255</div>
 					</div>
 				</details>
 			</div>
@@ -393,7 +393,7 @@
 					<details>
 						<summary>Available placeholders</summary>
 						<div class="fx-help">
-							<div>{value} — captured response</div>
+							<div>{value}: the captured response</div>
 							<div>Line breaks are kept as typed (\n also works)</div>
 							<div>Leave blank to replace the title with the response text</div>
 						</div>
