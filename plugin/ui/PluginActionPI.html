@@ -439,6 +439,31 @@
 						onchange="saveSettings()"
 					/>
 				</div>
+				<div class="sdpi-item">
+					<div class="sdpi-item-label">Server IP</div>
+					<input
+						class="sdpi-item-value"
+						placeholder="127.0.0.1"
+						value=""
+						id="serverIp"
+						oninput="saveSettings()"
+					/>
+				</div>
+				<div class="sdpi-item">
+					<div class="sdpi-item-label">Server Port</div>
+					<input
+						class="sdpi-item-value"
+						type="number"
+						placeholder="29200"
+						value=""
+						id="serverPort"
+						min="1"
+						max="65535"
+						pattern="[0-9]{1,5}"
+						onchange="saveSettings()"
+					/>
+				</div>
+				<div class="fx-help">Leave blank to use the default (127.0.0.1:29200). CL2 uses 29300.</div>
 			</details>
 		</div>
 		<script src="PluginActionPI.js"></script>

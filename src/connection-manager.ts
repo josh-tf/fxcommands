@@ -28,17 +28,22 @@ const TOKEN_PREFIX = "@fxid:"; // Prefix for command responses e.g. "@fxid:ab12c
 // Minimum gap between outgoing frames to prevent some being silently dropped
 const SEND_GAP_MS = 25;
 
+export const DEFAULT_HOST = "127.0.0.1";
+export const DEFAULT_PORT = 29200;
+
 function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
- * Manages a persistent TCP connection to the FiveM/RedM console on localhost:29200.
+ * Manages a persistent TCP connection to the FiveM/RedM console.
  * Uses the CMND binary protocol (IceCon-style).
  */
 export class ConnectionManager {
-	private static readonly HOST = "127.0.0.1";
-	private static readonly PORT = 29200;
+	constructor(
+		private readonly host: string = DEFAULT_HOST,
+		private readonly port: number = DEFAULT_PORT
+	) {}
 
 	private socket: net.Socket | null = null;
 	private connected = false;
@@ -55,7 +60,7 @@ export class ConnectionManager {
 		if (this.socket && this.connected) return;
 		if (this.connectPromise) return this.connectPromise;
 
-		logger.info(`Connecting to ${ConnectionManager.HOST}:${ConnectionManager.PORT}`);
+		logger.info(`Connecting to ${this.host}:${this.port}`);
 
 		this.connectPromise = new Promise<void>((resolve) => {
 			if (this.socket) {
@@ -69,7 +74,7 @@ export class ConnectionManager {
 			sock.setKeepAlive(true, 10000);
 
 			sock.on("connect", () => {
-				logger.info("Connected");
+				logger.info(`[${this.host}:${this.port}] Connected`);
 				sock.write(HANDSHAKE);
 				this.connected = true;
 				this.connectPromise = null;
@@ -77,14 +82,14 @@ export class ConnectionManager {
 			});
 
 			sock.on("error", (err: Error) => {
-				logger.error(`Connection error: ${err.message}`);
+				logger.error(`[${this.host}:${this.port}] Connection error: ${err.message}`);
 				this.connected = false;
 				this.connectPromise = null;
 				resolve();
 			});
 
 			sock.on("close", () => {
-				logger.info(`Disconnected`);
+				logger.info(`[${this.host}:${this.port}] Disconnected`);
 				this.connected = false;
 				this.socket = null;
 				this.connectPromise = null;
@@ -137,7 +142,7 @@ export class ConnectionManager {
 				}
 			});
 
-			sock.connect(ConnectionManager.PORT, ConnectionManager.HOST);
+			sock.connect(this.port, this.host);
 		});
 
 		return this.connectPromise;

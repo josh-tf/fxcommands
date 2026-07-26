@@ -91,6 +91,9 @@ function loadSettings(settings) {
 
 	document.getElementById("responseTimeoutMs").value = settings.responseTimeoutMs || 1500;
 
+	document.getElementById("serverIp").value = settings.serverIp || "";
+	document.getElementById("serverPort").value = settings.serverPort || "";
+
 	for (var i = 0; i < 5; i++) {
 		var pressedEl = document.getElementById("commandPressed" + i);
 		var releasedEl = document.getElementById("commandReleased" + i);
@@ -129,6 +132,10 @@ function saveSettings() {
 	var settings = Object.assign({}, currentSettings);
 	settings.desiredStates = parseInt(document.getElementById("desiredStates").value) || 1;
 	settings.responseTimeoutMs = parseInt(document.getElementById("responseTimeoutMs").value) || 1500;
+
+	settings.serverIp = document.getElementById("serverIp").value.trim();
+	var serverPort = parseInt(document.getElementById("serverPort").value);
+	settings.serverPort = serverPort > 0 ? serverPort : undefined;
 
 	for (var i = 0; i < 5; i++) {
 		settings["commandPressed" + i] = document.getElementById("commandPressed" + i).value;

@@ -14,7 +14,7 @@ import streamDeck, {
 	WillDisappearEvent
 } from "@elgato/streamdeck";
 
-import { CAPTURE_TIMEOUT_MS, ConnectionManager } from "../connection-manager";
+import { CAPTURE_TIMEOUT_MS, ConnectionManager, DEFAULT_HOST, DEFAULT_PORT } from "../connection-manager";
 
 const logger = streamDeck.logger.createScope("FXCommandAction");
 const MAX_STATES = 5;
@@ -80,6 +80,9 @@ type FXCommandSettings = {
 	responseTimeoutMs: number;
 	/** Property Inspector only: hides the response controls. Absent on configs predating it. */
 	responsesEnabled?: boolean;
+	/** Advanced Settings: overrides the default console IP/port. Blank/0 falls back to the default. */
+	serverIp?: string;
+	serverPort?: number;
 };
 
 function defaultSettings(): FXCommandSettings {
@@ -116,7 +119,8 @@ function defaultSettings(): FXCommandSettings {
 		responseLabel: "",
 		commandInit: "",
 		commandInitRunOnNoResponse: false,
-		responseTimeoutMs: CAPTURE_TIMEOUT_MS
+		responseTimeoutMs: CAPTURE_TIMEOUT_MS,
+		serverIp: ""
 	};
 }
 
@@ -136,13 +140,27 @@ function getCommandAction(settings: FXCommandSettings, stateIndex: number): Comm
 
 @action({ UUID: "tf.josh.fxcommands" })
 export class FXCommandAction extends SingletonAction<FXCommandSettings> {
-	private connectionManager = new ConnectionManager();
+	private connectionManagers = new Map<string, ConnectionManager>();
 	private states = new Map<string, number>();
 	private rotations = new Map<string, number>();
 	private layouts = new Map<string, string>();
 	private rotationPersists = new Map<string, { timer: ReturnType<typeof setTimeout>; flush: () => void }>();
 	private initRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
 	private responseSeq = new Map<string, number>();
+
+	/** Get or create the connection for this action's configured (or default) host/port. */
+	private getConnectionManager(settings: FXCommandSettings): ConnectionManager {
+		const host = settings.serverIp?.trim() || DEFAULT_HOST;
+		const port = settings.serverPort || DEFAULT_PORT;
+		const key = `${host}:${port}`;
+
+		let manager = this.connectionManagers.get(key);
+		if (!manager) {
+			manager = new ConnectionManager(host, port);
+			this.connectionManagers.set(key, manager);
+		}
+		return manager;
+	}
 
 	/**
 	 * Run the init command once a burst of dial movement settles, so a fast spin
@@ -204,7 +222,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		}
 
 		// Pre-connect so the first key press sends immediately
-		await this.connectionManager.connect();
+		await this.getConnectionManager(settings).connect();
 
 		// Page switches clear any previously displayed value, so re-run the init
 		// command every time the button appears to restore it.
@@ -223,6 +241,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 	 *   "e sit;{1500ms};me looks;{2000ms};e c"
 	 */
 	private async sendCommand(
+		connectionManager: ConnectionManager,
 		command: string,
 		expectResponse: boolean,
 		timeoutMs: number,
@@ -256,11 +275,11 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 				await sleep(token.ms);
 			} else if (token.value) {
 				if (expectResponse) {
-					const result = await this.connectionManager.sendWithToken(token.value, timeoutMs);
+					const result = await connectionManager.sendWithToken(token.value, timeoutMs);
 					if (!result.sent) success = false;
 					if (result.response) response = result.response;
 				} else {
-					const sent = await this.connectionManager.send(token.value);
+					const sent = await connectionManager.send(token.value);
 					if (!sent) success = false;
 				}
 			}
@@ -310,7 +329,12 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		settings: FXCommandSettings
 	): Promise<void> {
 		if (!settings.commandInit) return;
-		const { response } = await this.sendCommand(settings.commandInit, true, settings.responseTimeoutMs);
+		const { response } = await this.sendCommand(
+			this.getConnectionManager(settings),
+			settings.commandInit,
+			true,
+			settings.responseTimeoutMs
+		);
 		await this.showResponse(action, response, settings.responseLabel);
 	}
 
@@ -325,6 +349,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		if (cmd.commandPressed) {
 			logger.debug(`Press [${currentState}]: ${cmd.commandPressed}`);
 			const { success, response } = await this.sendCommand(
+				this.getConnectionManager(settings),
 				cmd.commandPressed,
 				cmd.commandPressedResponse,
 				settings.responseTimeoutMs
@@ -349,6 +374,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		if (cmd.commandReleased) {
 			logger.debug(`Release [${currentState}]: ${cmd.commandReleased}`);
 			const { success, response } = await this.sendCommand(
+				this.getConnectionManager(settings),
 				cmd.commandReleased,
 				cmd.commandReleasedResponse,
 				settings.responseTimeoutMs
@@ -410,11 +436,13 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 			const seq = (this.responseSeq.get(ev.action.id) ?? 0) + 1;
 			this.responseSeq.set(ev.action.id, seq);
 
-			const { success, response } = await this.sendCommand(template, expectResponse, settings.responseTimeoutMs, {
-				ticks,
-				rotationPercent,
-				rotationAbsolute
-			});
+			const { success, response } = await this.sendCommand(
+				this.getConnectionManager(settings),
+				template,
+				expectResponse,
+				settings.responseTimeoutMs,
+				{ ticks, rotationPercent, rotationAbsolute }
+			);
 			if (!success) await ev.action.showAlert();
 
 			const isLatest = this.responseSeq.get(ev.action.id) === seq;
@@ -435,6 +463,7 @@ export class FXCommandAction extends SingletonAction<FXCommandSettings> {
 		if (settings.commandTouch) {
 			logger.debug(`TouchTap: ${settings.commandTouch}`);
 			const { success, response } = await this.sendCommand(
+				this.getConnectionManager(settings),
 				settings.commandTouch,
 				settings.commandTouchResponse,
 				settings.responseTimeoutMs
