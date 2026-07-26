@@ -65,16 +65,16 @@ function updateResponseVisibility() {
 	document.getElementById("keySection").style.display = enabled && !isEncoder ? "" : "none";
 }
 
-/** Configs made before the toggle existed should keep showing their settings. */
-function hasAnyResponseSetting(settings) {
-	if (settings.commandInit || settings.responseLabel || settings.commandInitRunOnNoResponse) return true;
-	if (settings.commandTouchResponse || settings.commandRotateLeftResponse || settings.commandRotateRightResponse) {
-		return true;
+/**
+ * Nearly every setup talks to the game on this PC, so the address fields stay
+ * hidden until someone opts into pointing at a different console.
+ */
+function updateServerVisibility() {
+	var enabled = document.getElementById("customServerEnabled").checked;
+	var nodes = document.getElementsByClassName("server-only");
+	for (var i = 0; i < nodes.length; i++) {
+		nodes[i].style.display = enabled ? "" : "none";
 	}
-	for (var i = 0; i < 5; i++) {
-		if (settings["commandPressed" + i + "Response"] || settings["commandReleased" + i + "Response"]) return true;
-	}
-	return false;
 }
 
 /**
@@ -91,6 +91,10 @@ function loadSettings(settings) {
 
 	document.getElementById("responseTimeoutMs").value = settings.responseTimeoutMs || 1500;
 
+	document.getElementById("customServerEnabled").checked = !!settings.customServerEnabled;
+	document.getElementById("serverIp").value = settings.serverIp || "";
+	document.getElementById("serverPort").value = settings.serverPort || "";
+
 	for (var i = 0; i < 5; i++) {
 		var pressedEl = document.getElementById("commandPressed" + i);
 		var releasedEl = document.getElementById("commandReleased" + i);
@@ -102,8 +106,7 @@ function loadSettings(settings) {
 			!!settings["commandReleased" + i + "Response"];
 	}
 
-	document.getElementById("responsesEnabled").checked =
-		settings.responsesEnabled === undefined ? hasAnyResponseSetting(settings) : !!settings.responsesEnabled;
+	document.getElementById("responsesEnabled").checked = !!settings.responsesEnabled;
 	document.getElementById("responseLabel").value = settings.responseLabel || "";
 
 	document.getElementById("commandInit").value = settings.commandInit || "";
@@ -118,6 +121,7 @@ function loadSettings(settings) {
 
 	updateStateVisibility(desiredStates);
 	updateResponseVisibility();
+	updateServerVisibility();
 }
 
 /**
@@ -129,6 +133,11 @@ function saveSettings() {
 	var settings = Object.assign({}, currentSettings);
 	settings.desiredStates = parseInt(document.getElementById("desiredStates").value) || 1;
 	settings.responseTimeoutMs = parseInt(document.getElementById("responseTimeoutMs").value) || 1500;
+
+	settings.customServerEnabled = document.getElementById("customServerEnabled").checked;
+	settings.serverIp = document.getElementById("serverIp").value.trim();
+	var serverPort = parseInt(document.getElementById("serverPort").value);
+	settings.serverPort = serverPort > 0 && serverPort <= 65535 ? serverPort : undefined;
 
 	for (var i = 0; i < 5; i++) {
 		settings["commandPressed" + i] = document.getElementById("commandPressed" + i).value;
@@ -156,6 +165,7 @@ function saveSettings() {
 
 	currentSettings = settings;
 	updateResponseVisibility();
+	updateServerVisibility();
 
 	websocket.send(
 		JSON.stringify({
