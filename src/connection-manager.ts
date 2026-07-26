@@ -16,6 +16,8 @@ const CVAR_MAGIC = Buffer.from([0x43, 0x56, 0x41, 0x52]); // "CVAR"
 const AINF_MAGIC = Buffer.from([0x41, 0x49, 0x4e, 0x46]); // "AINF" - handshake ack, skipped
 const INCOMING_MAGICS = [PRNT_MAGIC, CHAN_MAGIC, CVAR_MAGIC, AINF_MAGIC];
 const PRNT_PAYLOAD_OFFSET = 40;
+/** Upper bound on a single frame; console lines are far smaller. Guards against a misread length. */
+const MAX_FRAME_SIZE = 1 << 20;
 const HANDSHAKE = Buffer.from([0x50, 0x50, 0x43, 0x52]); // "PPCR"
 
 export const CAPTURE_TIMEOUT_MS = 1500;
@@ -98,17 +100,29 @@ export class ConnectionManager {
 				while (this.recvBuffer.length >= FRAME_HEADER_SIZE) {
 					const magic = this.recvBuffer.subarray(0, 4);
 					if (!INCOMING_MAGICS.some((m) => magic.equals(m))) {
+						// Search from offset 1 so we always make forward progress.
 						const nextIndex = INCOMING_MAGICS.reduce((min, m) => {
-							const idx = this.recvBuffer.indexOf(m);
+							const idx = this.recvBuffer.indexOf(m, 1);
 							return idx === -1 ? min : Math.min(min, idx);
-						}, -1);
-						this.recvBuffer = nextIndex === -1 ? Buffer.alloc(0) : this.recvBuffer.subarray(nextIndex);
-						if (this.recvBuffer.length < FRAME_HEADER_SIZE) break;
+						}, Number.POSITIVE_INFINITY);
+
+						if (nextIndex === Number.POSITIVE_INFINITY) {
+							// Nothing recognizable left. Retain a short tail in case a magic
+							// straddles the chunk boundary.
+							this.recvBuffer = this.recvBuffer.subarray(Math.max(0, this.recvBuffer.length - 3));
+							break;
+						}
+
+						this.recvBuffer = this.recvBuffer.subarray(nextIndex);
 						continue;
 					}
 
+					// NOTE: on incoming frames this length is the *total* frame size, unlike
+					// the outgoing CMND frames built in send() where it is the payload size.
 					const totalSize = this.recvBuffer.readUInt32BE(6);
-					if (totalSize < FRAME_HEADER_SIZE) {
+					if (totalSize < FRAME_HEADER_SIZE || totalSize > MAX_FRAME_SIZE) {
+						// Bogus length: drop this magic and resync on the next one rather than
+						// stalling forever waiting for bytes that will never arrive.
 						this.recvBuffer = this.recvBuffer.subarray(4);
 						continue;
 					}
