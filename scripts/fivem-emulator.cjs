@@ -1,69 +1,177 @@
 #!/usr/bin/env node
 /**
  * FiveM/RedM Console Emulator
- * Listens on TCP port 29200 and decodes CMND protocol messages.
- * Handles multiple messages per TCP chunk and partial messages.
- * Run: node fivem-emulator.cjs
+ *
+ * Listens on TCP port 29200 and speaks enough of the FiveM devcon protocol to
+ * exercise the plugin without the game running:
+ *
+ *   - decodes outgoing CMND frames (commands sent by the plugin)
+ *   - answers the PPCR handshake with an AINF frame
+ *   - replies to commands carrying an "@fxid:" token with a PRNT frame, so the
+ *     command-response feature can be tested end to end
+ *
+ * Run: node fivem-emulator.cjs [options]
+ *
+ * Options:
+ *   --percent        Append "%" to values so the dial switches to the bar layout
+ *   --delay=<ms>     Wait before replying (use >1500 to exercise the capture timeout)
+ *   --drop           Never reply, to exercise the no-response path
+ *   --garbage        Prefix replies with junk bytes, to exercise frame resync
+ *   --split          Send each reply in two TCP chunks, to exercise buffering
+ *   --value=<n>      Starting value for the simulated setting (default 50)
  */
 
 const net = require("net");
 
 const PORT = 29200;
 const HOST = "127.0.0.1";
-const CMND_MAGIC = Buffer.from([0x43, 0x4d, 0x4e, 0x44]); // 'CMND'
+
+const CMND_MAGIC = Buffer.from("CMND", "ascii");
+const PRNT_MAGIC = Buffer.from("PRNT", "ascii");
+const AINF_MAGIC = Buffer.from("AINF", "ascii");
+const HANDSHAKE = Buffer.from("PPCR", "ascii");
+const PROTOCOL = Buffer.from([0x00, 0xd3]); // 211 big-endian
+
+const HEADER_SIZE = 12; // magic(4) + protocol(2) + length(4) + padding(2)
+const PRNT_PAYLOAD_OFFSET = 40; // PRNT carries 28 extra bytes of channel metadata
+const TOKEN_PATTERN = /@fxid:[0-9a-f]+/i;
+
+const opts = parseArgs(process.argv.slice(2));
+const state = { value: opts.value };
+
+function parseArgs(argv) {
+	const o = { percent: false, delay: 0, drop: false, garbage: false, split: false, value: 50 };
+	for (const arg of argv) {
+		const [key, val] = arg.replace(/^--/, "").split("=");
+		if (key === "percent") o.percent = true;
+		else if (key === "drop") o.drop = true;
+		else if (key === "garbage") o.garbage = true;
+		else if (key === "split") o.split = true;
+		else if (key === "delay") o.delay = parseInt(val, 10) || 0;
+		else if (key === "value") o.value = parseFloat(val) || 0;
+	}
+	return o;
+}
 
 /**
- * Parse all complete CMND messages from a buffer.
- * Returns { messages: [], remainder: Buffer }
+ * Build an incoming frame.
  *
- * Frame layout (matches FiveM devcon protocol):
- *   [4 bytes magic]     CMND (0x43 0x4D 0x4E 0x44)
+ * NOTE: the length field here is the TOTAL frame size, which is what the plugin's
+ * receive parser expects. This is the opposite of the outgoing CMND convention
+ * below, where the same field is the payload size. If a real client ever proves
+ * otherwise, this is the line to change.
+ */
+function buildFrame(magic, text) {
+	const payload = Buffer.from(text + "\0", "utf-8");
+	const total = PRNT_PAYLOAD_OFFSET + payload.length;
+	const frame = Buffer.alloc(total);
+	magic.copy(frame, 0);
+	PROTOCOL.copy(frame, 4);
+	frame.writeUInt32BE(total, 6);
+	payload.copy(frame, PRNT_PAYLOAD_OFFSET);
+	return frame;
+}
+
+/**
+ * Parse all complete CMND messages from a buffer, plus the PPCR handshake.
+ *
+ * CMND frame layout (outgoing, written by the plugin):
+ *   [4 bytes magic]     CMND
  *   [2 bytes protocol]  big-endian uint16 (211 = 0x00D3)
- *   [4 bytes length]    big-endian uint32
+ *   [4 bytes length]    big-endian uint32 - PAYLOAD size, not total
  *   [2 bytes padding]   0x00 0x00
  *   [N bytes command]   UTF-8 + newline
  *   [1 byte terminator] 0x00
- *
- * Minimum frame: 12 header bytes + 1 command byte + 1 terminator = 14 bytes
- * FiveM ignores the length field for CMND, reading all remaining bytes.
- * We use it here for proper frame boundary detection when multiple
- * messages arrive in a single TCP chunk.
  */
 function parseFrames(buf) {
 	const messages = [];
 	let offset = 0;
 
 	while (offset < buf.length) {
-		// Need at least 12 bytes for magic + protocol + length + padding
-		if (buf.length - offset < 12) break;
-
-		// Check CMND magic (first 4 bytes)
-		if (!buf.subarray(offset, offset + 4).equals(CMND_MAGIC)) {
-			// Not a valid frame, dump rest as raw
-			messages.push({ raw: true, text: buf.subarray(offset).toString("utf-8").trim() });
-			offset = buf.length;
-			break;
+		// The plugin opens with a bare 4-byte PPCR handshake, not a framed message.
+		if (buf.length - offset >= 4 && buf.subarray(offset, offset + 4).equals(HANDSHAKE)) {
+			messages.push({ type: "handshake" });
+			offset += 4;
+			continue;
 		}
 
-		// Read length field at offset +6 (after 4 magic + 2 protocol)
+		if (buf.length - offset < HEADER_SIZE) break;
+
+		if (!buf.subarray(offset, offset + 4).equals(CMND_MAGIC)) {
+			// Unknown byte - skip it rather than discarding the whole buffer, so a
+			// stray byte cannot swallow the valid frames that follow it.
+			offset += 1;
+			continue;
+		}
+
 		const declaredLength = buf.readUInt32BE(offset + 6);
+		const frameSize = HEADER_SIZE + declaredLength;
+		if (buf.length - offset < frameSize) break; // incomplete, wait for more
 
-		// Total frame = 4 magic + 2 protocol + 4 length + 2 padding + command + terminator
-		//             = 12 + (declaredLength - 1) + 1  [length includes terminator]
-		//             = 12 + declaredLength
-		const frameSize = 12 + declaredLength;
-
-		if (buf.length - offset < frameSize) break; // Incomplete frame, wait for more
-
-		// Command starts at offset +12, ends before terminator
-		const commandBytes = buf.subarray(offset + 12, offset + frameSize - 1);
-		const command = commandBytes.toString("utf-8").replace(/\n$/, "");
-		messages.push({ raw: false, text: command });
-
+		const command = buf
+			.subarray(offset + HEADER_SIZE, offset + frameSize - 1)
+			.toString("utf-8")
+			.replace(/\n$/, "");
+		messages.push({ type: "command", text: command });
 		offset += frameSize;
 	}
 
 	return { messages, remainder: buf.subarray(offset) };
+}
+
+/**
+ * Update the simulated value from a command, mimicking a server-side handler.
+ * A command containing "set" treats its number as absolute, anything else as a delta.
+ */
+function applyCommand(command) {
+	const withoutToken = command.replace(TOKEN_PATTERN, "").trim();
+	const number = withoutToken.match(/(-?\d+(?:\.\d+)?)\s*$/);
+	if (number) {
+		const n = parseFloat(number[1]);
+		state.value = /set/i.test(withoutToken) ? n : state.value + n;
+	} else if (/up|right|inc/i.test(withoutToken)) {
+		state.value += 1;
+	} else if (/down|left|dec/i.test(withoutToken)) {
+		state.value -= 1;
+	}
+	state.value = Math.min(100, Math.max(0, state.value));
+	return state.value;
+}
+
+function send(socket, frame) {
+	if (!opts.split || frame.length < 8) {
+		socket.write(frame);
+		return;
+	}
+	// Deliberately straddle a frame across two TCP chunks.
+	const cut = Math.floor(frame.length / 2);
+	socket.write(frame.subarray(0, cut));
+	setTimeout(() => socket.write(frame.subarray(cut)), 10);
+}
+
+function respond(socket, command) {
+	const match = command.match(TOKEN_PATTERN);
+	if (!match) return; // no token: fire-and-forget command, nothing to reply
+
+	const token = match[0];
+	const value = applyCommand(command);
+	const text = `${token} ${value}${opts.percent ? "%" : ""}`;
+
+	if (opts.drop) {
+		console.log(`\x1b[90m       (dropping reply for ${token})\x1b[0m`);
+		return;
+	}
+
+	setTimeout(() => {
+		if (socket.destroyed) return;
+		// The junk must share a TCP chunk with the frame, otherwise the parser just
+		// discards it on its own and the resync path is never exercised.
+		const frame = opts.garbage
+			? Buffer.concat([Buffer.from("!!junk!!not-a-frame!!", "ascii"), buildFrame(PRNT_MAGIC, text)])
+			: buildFrame(PRNT_MAGIC, text);
+		send(socket, frame);
+		console.log(`\x1b[35m     < ${text}\x1b[0m`);
+	}, opts.delay);
 }
 
 const server = net.createServer((socket) => {
@@ -79,11 +187,13 @@ const server = net.createServer((socket) => {
 
 		for (const msg of messages) {
 			const timestamp = new Date().toLocaleTimeString();
-			if (msg.raw) {
-				console.log(`\x1b[33m[${timestamp}] (raw) ${msg.text}\x1b[0m`);
-			} else {
-				console.log(`\x1b[36m[${timestamp}]\x1b[0m \x1b[1m> ${msg.text}\x1b[0m`);
+			if (msg.type === "handshake") {
+				console.log(`\x1b[34m[${timestamp}] handshake (PPCR) -> AINF\x1b[0m`);
+				send(socket, buildFrame(AINF_MAGIC, "emulator"));
+				continue;
 			}
+			console.log(`\x1b[36m[${timestamp}]\x1b[0m \x1b[1m> ${msg.text}\x1b[0m`);
+			respond(socket, msg.text);
 		}
 	});
 
@@ -97,9 +207,18 @@ const server = net.createServer((socket) => {
 });
 
 server.listen(PORT, HOST, () => {
+	const flags = [
+		opts.percent && "percent",
+		opts.drop && "drop",
+		opts.garbage && "garbage",
+		opts.split && "split",
+		opts.delay && `delay=${opts.delay}ms`
+	].filter(Boolean);
+
 	console.log(`\x1b[1m========================================\x1b[0m`);
 	console.log(`\x1b[1m  FiveM/RedM Console Emulator\x1b[0m`);
 	console.log(`\x1b[1m  Listening on ${HOST}:${PORT}\x1b[0m`);
+	console.log(`\x1b[1m  Value: ${state.value}${flags.length ? `  Flags: ${flags.join(", ")}` : ""}\x1b[0m`);
 	console.log(`\x1b[1m========================================\x1b[0m`);
 	console.log(`Waiting for Stream Deck plugin connections...\n`);
 });

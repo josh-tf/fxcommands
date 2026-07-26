@@ -18,7 +18,15 @@
 		"noEmit",
 		"cmnd",
 		"keypad",
-		"imgs"
+		"imgs",
+		"fxid",
+		"voldown",
+		"volup",
+		"PRNT",
+		"CHAN",
+		"CVAR",
+		"AINF",
+		"PPCR"
 	],
 	"ignorePaths": ["dist/", "node_modules/", "package-lock.json", "plugin/ui/sdpi.css", "plugin/imgs/"]
 }

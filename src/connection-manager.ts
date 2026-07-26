@@ -1,11 +1,36 @@
 import net from "node:net";
+import { randomUUID } from "node:crypto";
 import streamDeck from "@elgato/streamdeck";
 
 const logger = streamDeck.logger.createScope("ConnectionManager");
 
-/** CMND protocol header bytes. */
+/** Protocol header bytes - used when sending commands. */
 const CMND_MAGIC = Buffer.from([0x43, 0x4d, 0x4e, 0x44]);
 const CMND_PROTOCOL = Buffer.from([0x00, 0xd3]); // 211 big-endian
+const FRAME_HEADER_SIZE = 12; // magic(4) + protocol(2) + length(4) + padding(2)
+
+/** Protocol header bytes - used when receiving console outputs. */
+const PRNT_MAGIC = Buffer.from([0x50, 0x52, 0x4e, 0x54]); // "PRNT"
+const CHAN_MAGIC = Buffer.from([0x43, 0x48, 0x41, 0x4e]); // "CHAN"
+const CVAR_MAGIC = Buffer.from([0x43, 0x56, 0x41, 0x52]); // "CVAR"
+const AINF_MAGIC = Buffer.from([0x41, 0x49, 0x4e, 0x46]); // "AINF" - handshake ack, skipped
+const INCOMING_MAGICS = [PRNT_MAGIC, CHAN_MAGIC, CVAR_MAGIC, AINF_MAGIC];
+const PRNT_PAYLOAD_OFFSET = 40;
+/** Upper bound on a single frame; console lines are far smaller. Guards against a misread length. */
+const MAX_FRAME_SIZE = 1 << 20;
+const HANDSHAKE = Buffer.from([0x50, 0x50, 0x43, 0x52]); // "PPCR"
+
+export const CAPTURE_TIMEOUT_MS = 1500;
+/** The FiveM client drops the socket after 5s of inactivity, so a capture window cannot usefully exceed it. */
+const MAX_CAPTURE_TIMEOUT_MS = 5000;
+const TOKEN_PREFIX = "@fxid:"; // Prefix for command responses e.g. "@fxid:ab12cd34"
+
+// Minimum gap between outgoing frames to prevent some being silently dropped
+const SEND_GAP_MS = 25;
+
+function sleep(ms: number): Promise<void> {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 /**
  * Manages a persistent TCP connection to the FiveM/RedM console on localhost:29200.
@@ -18,6 +43,9 @@ export class ConnectionManager {
 	private socket: net.Socket | null = null;
 	private connected = false;
 	private connectPromise: Promise<void> | null = null;
+	private recvBuffer = Buffer.alloc(0);
+	private lineHandlers = new Set<(line: string) => void>();
+	private sendQueue: Promise<void> = Promise.resolve();
 
 	/**
 	 * Open the TCP connection. Resolves when connected.
@@ -42,6 +70,7 @@ export class ConnectionManager {
 
 			sock.on("connect", () => {
 				logger.info("Connected");
+				sock.write(HANDSHAKE);
 				this.connected = true;
 				this.connectPromise = null;
 				resolve();
@@ -55,15 +84,67 @@ export class ConnectionManager {
 			});
 
 			sock.on("close", () => {
+				logger.info(`Disconnected`);
 				this.connected = false;
 				this.socket = null;
 				this.connectPromise = null;
+				this.recvBuffer = Buffer.alloc(0);
+			});
+
+			sock.on("data", (chunk: Buffer) => {
+				this.recvBuffer = Buffer.concat([this.recvBuffer, chunk]);
+
+				while (this.recvBuffer.length >= FRAME_HEADER_SIZE) {
+					const magic = this.recvBuffer.subarray(0, 4);
+					if (!INCOMING_MAGICS.some((m) => magic.equals(m))) {
+						// Search from offset 1 so we always make forward progress.
+						const nextIndex = INCOMING_MAGICS.reduce((min, m) => {
+							const idx = this.recvBuffer.indexOf(m, 1);
+							return idx === -1 ? min : Math.min(min, idx);
+						}, Number.POSITIVE_INFINITY);
+
+						if (nextIndex === Number.POSITIVE_INFINITY) {
+							// Nothing recognizable left. Retain a short tail in case a magic
+							// straddles the chunk boundary.
+							this.recvBuffer = this.recvBuffer.subarray(Math.max(0, this.recvBuffer.length - 3));
+							break;
+						}
+
+						this.recvBuffer = this.recvBuffer.subarray(nextIndex);
+						continue;
+					}
+
+					// NOTE: on incoming frames this length is the *total* frame size, unlike
+					// the outgoing CMND frames built in send() where it is the payload size.
+					const totalSize = this.recvBuffer.readUInt32BE(6);
+					if (totalSize < FRAME_HEADER_SIZE || totalSize > MAX_FRAME_SIZE) {
+						// Bogus length: drop this magic and resync on the next one rather than
+						// stalling forever waiting for bytes that will never arrive.
+						this.recvBuffer = this.recvBuffer.subarray(4);
+						continue;
+					}
+					if (this.recvBuffer.length < totalSize) break;
+
+					if (magic.equals(PRNT_MAGIC) && totalSize > PRNT_PAYLOAD_OFFSET) {
+						const payload = this.recvBuffer.subarray(PRNT_PAYLOAD_OFFSET, totalSize);
+						const text = payload.toString("utf-8").replace(/\0+$/, "").trim();
+						if (text) {
+							this.dispatchLine(text);
+						}
+					}
+
+					this.recvBuffer = this.recvBuffer.subarray(totalSize);
+				}
 			});
 
 			sock.connect(ConnectionManager.PORT, ConnectionManager.HOST);
 		});
 
 		return this.connectPromise;
+	}
+
+	private dispatchLine(line: string): void {
+		for (const handler of this.lineHandlers) handler(line);
 	}
 
 	/**
@@ -87,6 +168,7 @@ export class ConnectionManager {
 			return false;
 		}
 
+		const socket = this.socket;
 		const command = Buffer.from(message + "\n", "utf-8");
 		const length = Buffer.alloc(4);
 		length.writeUInt32BE(command.length + 1);
@@ -100,8 +182,49 @@ export class ConnectionManager {
 			Buffer.from([0x00])
 		]);
 
-		this.socket.write(data);
+		const write = this.sendQueue.then(() => {
+			socket.write(data);
+		});
+		this.sendQueue = write.then(
+			() => sleep(SEND_GAP_MS),
+			() => sleep(SEND_GAP_MS)
+		);
+		await write;
 		return true;
+	}
+
+	/**
+	 * Send a command with a unique correlation token appended (e.g. "e sit @fxid:ab12cd34")
+	 * and wait for a console line containing that same token to appear.
+	 * `response` is null if no matching line appears before `timeoutMs` elapses.
+	 */
+	public async sendWithToken(
+		command: string,
+		timeoutMs = CAPTURE_TIMEOUT_MS
+	): Promise<{ sent: boolean; response: string | null }> {
+		const captureMs = timeoutMs > 0 ? Math.min(MAX_CAPTURE_TIMEOUT_MS, timeoutMs) : CAPTURE_TIMEOUT_MS;
+		const tag = `${TOKEN_PREFIX}${randomUUID().slice(0, 8)}`;
+
+		const responsePromise = new Promise<string | null>((resolve) => {
+			const finish = (value: string | null): void => {
+				this.lineHandlers.delete(handler);
+				clearTimeout(timer);
+				resolve(value);
+			};
+
+			const handler = (line: string): void => {
+				if (line.includes(tag)) {
+					finish(line.replace(tag, "").trim() || null);
+				}
+			};
+
+			const timer = setTimeout(() => finish(null), captureMs);
+			this.lineHandlers.add(handler);
+		});
+
+		const sent = await this.send(`${command} ${tag}`);
+		const response = await responsePromise;
+		return { sent, response };
 	}
 
 	/** Close the TCP connection. */
@@ -113,5 +236,6 @@ export class ConnectionManager {
 		}
 		this.connected = false;
 		this.connectPromise = null;
+		this.recvBuffer = Buffer.alloc(0);
 	}
 }
