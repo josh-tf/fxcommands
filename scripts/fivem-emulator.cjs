@@ -19,12 +19,18 @@
  *   --garbage        Prefix replies with junk bytes, to exercise frame resync
  *   --split          Send each reply in two TCP chunks, to exercise buffering
  *   --value=<n>      Starting value for the simulated setting (default 50)
+ *   --port=<n>       Listen on a different port (default 29200)
+ *   --cl2            Shorthand for --port=29300, the port a -cl2 client uses
+ *   --host=<ip>      Bind a different address (default 127.0.0.1). Use 0.0.0.0 to
+ *                    accept connections from another machine, which is what the
+ *                    plugin's Server IP override talks to
  */
 
 const net = require("net");
 
-const PORT = 29200;
-const HOST = "127.0.0.1";
+const DEFAULT_PORT = 29200;
+const CL2_PORT = 29300;
+const DEFAULT_HOST = "127.0.0.1";
 
 const CMND_MAGIC = Buffer.from("CMND", "ascii");
 const PRNT_MAGIC = Buffer.from("PRNT", "ascii");
@@ -40,7 +46,16 @@ const opts = parseArgs(process.argv.slice(2));
 const state = { value: opts.value };
 
 function parseArgs(argv) {
-	const o = { percent: false, delay: 0, drop: false, garbage: false, split: false, value: 50 };
+	const o = {
+		percent: false,
+		delay: 0,
+		drop: false,
+		garbage: false,
+		split: false,
+		value: 50,
+		port: DEFAULT_PORT,
+		host: DEFAULT_HOST
+	};
 	for (const arg of argv) {
 		const [key, val] = arg.replace(/^--/, "").split("=");
 		if (key === "percent") o.percent = true;
@@ -49,6 +64,18 @@ function parseArgs(argv) {
 		else if (key === "split") o.split = true;
 		else if (key === "delay") o.delay = parseInt(val, 10) || 0;
 		else if (key === "value") o.value = parseFloat(val) || 0;
+		else if (key === "cl2") o.port = CL2_PORT;
+		else if (key === "host") o.host = val || DEFAULT_HOST;
+		else if (key === "port") {
+			const port = parseInt(val, 10);
+			// Bad ports make net.listen throw ERR_SOCKET_BAD_PORT from inside the
+			// server, which reads as a crash rather than a typo. Reject it here.
+			if (!(port > 0 && port <= 65535)) {
+				console.error(`Invalid --port=${val}, expected 1-65535`);
+				process.exit(1);
+			}
+			o.port = port;
+		}
 	}
 	return o;
 }
@@ -206,18 +233,19 @@ const server = net.createServer((socket) => {
 	});
 });
 
-server.listen(PORT, HOST, () => {
+server.listen(opts.port, opts.host, () => {
 	const flags = [
 		opts.percent && "percent",
 		opts.drop && "drop",
 		opts.garbage && "garbage",
 		opts.split && "split",
-		opts.delay && `delay=${opts.delay}ms`
+		opts.delay && `delay=${opts.delay}ms`,
+		opts.port === CL2_PORT && "cl2"
 	].filter(Boolean);
 
 	console.log(`\x1b[1m========================================\x1b[0m`);
 	console.log(`\x1b[1m  FiveM/RedM Console Emulator\x1b[0m`);
-	console.log(`\x1b[1m  Listening on ${HOST}:${PORT}\x1b[0m`);
+	console.log(`\x1b[1m  Listening on ${opts.host}:${opts.port}\x1b[0m`);
 	console.log(`\x1b[1m  Value: ${state.value}${flags.length ? `  Flags: ${flags.join(", ")}` : ""}\x1b[0m`);
 	console.log(`\x1b[1m========================================\x1b[0m`);
 	console.log(`Waiting for Stream Deck plugin connections...\n`);
@@ -225,7 +253,9 @@ server.listen(PORT, HOST, () => {
 
 server.on("error", (err) => {
 	if (err.code === "EADDRINUSE") {
-		console.error(`\x1b[31mPort ${PORT} is already in use. Is FiveM running?\x1b[0m`);
+		console.error(`\x1b[31mPort ${opts.port} is already in use. Is FiveM running?\x1b[0m`);
+	} else if (err.code === "EADDRNOTAVAIL") {
+		console.error(`\x1b[31m${opts.host} is not an address on this machine. Use 0.0.0.0 to accept remote connections.\x1b[0m`);
 	} else {
 		console.error(`\x1b[31mServer error: ${err.message}\x1b[0m`);
 	}

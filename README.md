@@ -229,6 +229,18 @@ node scripts/fivem-emulator.cjs --split    # split replies across TCP chunks
 node scripts/fivem-emulator.cjs --delay=2000 --value=75
 ```
 
+To exercise the **Server IP** and **Server Port** overrides, move the emulator off the default
+`127.0.0.1:29200` and point a button at it.
+
+```sh
+node scripts/fivem-emulator.cjs --cl2             # listen on 29300, the port a -cl2 client uses
+node scripts/fivem-emulator.cjs --port=29300      # the same thing, spelled out
+node scripts/fivem-emulator.cjs --host=0.0.0.0    # accept connections from another machine
+```
+
+Two emulators on different ports can run side by side, which is the quickest way to check that
+each button keeps its own address.
+
 See the [Contributing](https://github.com/josh-tf/fxcommands/wiki/Contributing) guide for full development setup.
 
 ---
